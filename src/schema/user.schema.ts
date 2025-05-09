@@ -8,7 +8,7 @@ import {
 import { z } from 'zod'
 
 export const users = pgTable('users', {
-  user_id: serial('user_id').primaryKey(),
+  user_id: varchar('user_id', { length: 255 }).notNull().primaryKey(),
   username: varchar('username', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   bio: varchar('bio', { length: 255 }),

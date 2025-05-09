@@ -5,6 +5,7 @@ import {
   createUserSchema,
   type CreateUserInput,
 } from '../schema/user.schema'
+import { eq } from 'drizzle-orm'
 
 // export async function createUser(c: Context) {
 //   try {
@@ -27,10 +28,18 @@ export async function getUsers(c: Context) {
 }
 
 export async function getUserById(c: Context) {
-  // const id = c.req.param('id');
-  // const user = await db.select().from(users).where(users.user_id = Number(id));
-  // if (!user.length) {
-  //   return c.json({ error: 'User not found' }, 404);
-  // }
-  // return c.json({ user: user[0] });
+  const id = c.req.param('id')
+
+  try {
+    const user = await db.select().from(users).where(eq(users.user_id, id))
+
+    if (!user.length) {
+      return c.json({ error: 'User not found' }, 404)
+    }
+
+    return c.json({ user: user[0] })
+  } catch (error) {
+    console.error(error)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
 }

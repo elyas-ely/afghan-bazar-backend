@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import {
-  createUser,
+  //   createUser,
   getUsers,
   getUserById,
 } from '../controllers/user.controller'
@@ -8,7 +8,7 @@ import {
 const router = new Hono()
 
 router.get('/', getUsers)
+router.get('/:id', getUserById)
 // router.post('/', createUser);
-// router.get('/:id', getUserById);
 
 export default router
