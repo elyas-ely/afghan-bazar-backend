@@ -1,11 +1,3 @@
-To install dependencies:
-```sh
-bun install
-```
+### Migrations
 
-To run:
-```sh
-bun run dev
-```
-
-open http://localhost:3000
+psql -U postgres -d myapp -f src/migrations/001_update_array_columns.sql
