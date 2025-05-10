@@ -80,10 +80,6 @@ export async function getUserAddress(c: Context) {
       .from(user_addresses)
       .where(eq(user_addresses.user_id, userId))
 
-    if (!address.length) {
-      return c.json({ error: 'User address not found' }, 404)
-    }
-
     return c.json(address)
   } catch (error) {
     console.error(error)
