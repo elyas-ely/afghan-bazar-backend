@@ -17,14 +17,6 @@ export const users = pgTable('users', {
   created_at: timestamp('created_at').defaultNow(),
 })
 
-export const user_addresses = pgTable('user_addresses', {
-  id: serial('id').primaryKey(),
-  user_id: varchar('user_id', { length: 255 }).notNull(),
-  address1: varchar('address1', { length: 255 }),
-  address2: varchar('address2', { length: 255 }),
-  zipcode: varchar('zipcode', { length: 255 }),
-})
-
 // Zod schema for runtime validation
 export const createUserSchema = z.object({
   id: z.string(),
@@ -33,5 +25,20 @@ export const createUserSchema = z.object({
   profile: z.string().optional(),
 })
 
-// ✅ This matches the shape expected by db.insert(users).values()
+export const user_addresses = pgTable('user_addresses', {
+  id: serial('id').primaryKey(),
+  user_id: varchar('user_id', { length: 255 }).notNull(),
+  address1: varchar('address1', { length: 255 }),
+  address2: varchar('address2', { length: 255 }),
+  zipcode: varchar('zipcode', { length: 255 }),
+})
+
+export const createUserAddressSchema = z.object({
+  user_id: z.string(),
+  address1: z.string(),
+  address2: z.string(),
+  zipcode: z.string(),
+})
+
+export type createUserAddressInput = InferInsertModel<typeof user_addresses>
 export type CreateUserInput = InferInsertModel<typeof users>

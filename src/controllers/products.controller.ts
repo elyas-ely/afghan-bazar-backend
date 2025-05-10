@@ -47,17 +47,12 @@ export async function createProduct(c: Context) {
     const body = await c.req.json()
     const validatedData = createProductSchema.parse(body)
 
-    const productToInsert = {
-      ...validatedData,
-      price: validatedData.price.toString(),
-      images: validatedData.images,
-      tags: validatedData.tags || null,
-      ingredients: validatedData.ingredients || null,
-    }
-
     const newProduct = await db
       .insert(products)
-      .values(productToInsert)
+      .values({
+        ...validatedData,
+        price: validatedData.price.toString(),
+      })
       .returning()
 
     return c.json({ product: newProduct[0] }, 201)

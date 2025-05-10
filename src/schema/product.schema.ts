@@ -16,7 +16,7 @@ export const products = pgTable('products', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description').notNull(),
-  price: numeric('price', { precision: 10, scale: 2 }).notNull(),
+  price: numeric('price').notNull(),
   images: text('images').array().notNull(),
   category_id: integer('category_id').notNull(),
   weight: varchar('weight', { length: 50 }).notNull(),
