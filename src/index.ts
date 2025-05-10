@@ -3,6 +3,7 @@ import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
 import { env } from './config/env'
 import userRoutes from './routes/user.routes'
+import productRoutes from './routes/product.routes'
 
 const app = new Hono()
 
@@ -15,6 +16,7 @@ app.get('/health', (c) => c.json({ status: 'ok' }))
 
 // Routes
 app.route('/users', userRoutes)
+app.route('/products', productRoutes)
 
 // Start server
 const port = Number(env.PORT)
