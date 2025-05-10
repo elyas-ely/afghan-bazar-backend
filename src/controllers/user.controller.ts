@@ -1,14 +1,18 @@
 import { Context } from 'hono'
 import { db } from '../config/database'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import {
   users,
   user_addresses,
   createUserSchema,
-  type CreateUserInput,
   createUserAddressSchema,
 } from '../schema/user.schema'
-
+//
+//
+//
+// =====================
+// ==== USER CONTROLLER ====
+// =====================
 export async function createUser(c: Context) {
   try {
     const body = await c.req.json()
@@ -38,14 +42,14 @@ export async function getUsers(c: Context) {
 }
 
 export async function getUserById(c: Context) {
-  const id = c.req.param('id')
+  const userId = c.req.param('userId')
 
-  if (!id || typeof id !== 'string') {
+  if (!userId || typeof userId !== 'string') {
     return c.json({ error: 'Invalid user ID' }, 400)
   }
 
   try {
-    const user = await db.select().from(users).where(eq(users.id, id))
+    const user = await db.select().from(users).where(eq(users.id, userId))
 
     if (!user.length) {
       return c.json({ error: 'User not found' }, 404)
@@ -57,11 +61,16 @@ export async function getUserById(c: Context) {
     return c.json({ error: 'Internal Server Error' }, 500)
   }
 }
-
+//
+//
+//
+// ============================
+// ==== USER ADDRESS CONTROLLER ====
+// ============================
 export async function getUserAddress(c: Context) {
-  const id = c.req.param('id')
+  const userId = c.req.param('userId')
 
-  if (!id || typeof id !== 'string') {
+  if (!userId || typeof userId !== 'string') {
     return c.json({ error: 'Invalid user ID' }, 400)
   }
 
@@ -69,7 +78,7 @@ export async function getUserAddress(c: Context) {
     const address = await db
       .select()
       .from(user_addresses)
-      .where(eq(user_addresses.user_id, id))
+      .where(eq(user_addresses.user_id, userId))
 
     if (!address.length) {
       return c.json({ error: 'User address not found' }, 404)
@@ -82,7 +91,42 @@ export async function getUserAddress(c: Context) {
   }
 }
 
+export async function getUserAddressById(c: Context) {
+  const addressId = Number(c.req.param('id'))
+  const userId = c.req.param('userId')
+
+  if (
+    !addressId ||
+    !userId ||
+    typeof addressId !== 'number' ||
+    typeof userId !== 'string'
+  ) {
+    return c.json({ error: 'Invalid  address ID' }, 400)
+  }
+  try {
+    const address = await db
+      .select()
+      .from(user_addresses)
+      .where(eq(user_addresses.id, addressId))
+
+    if (!address) {
+      return c.json({ error: 'User address not found' }, 404)
+    }
+
+    return c.json(address)
+  } catch (error) {
+    console.log(error)
+    return c.json({ error: 'Invalid input' }, 400)
+  }
+}
+
 export async function createUserAddress(c: Context) {
+  const userId = c.req.param('userId')
+
+  if (!userId || typeof userId !== 'string') {
+    return c.json({ error: 'Invalid user ID' }, 400)
+  }
+
   try {
     const body = await c.req.json()
     const validatedData = createUserAddressSchema.parse(body)
@@ -95,6 +139,67 @@ export async function createUserAddress(c: Context) {
     return c.json({ address: newAddress[0] }, 201)
   } catch (error) {
     console.error(error)
+    return c.json({ error: 'Invalid input' }, 400)
+  }
+}
+
+export async function updateUserAddress(c: Context) {
+  try {
+    const body = await c.req.json()
+    const validatedData = createUserAddressSchema.parse(body)
+
+    const address = await db
+      .update(user_addresses)
+      .set(validatedData)
+      .where(
+        and(
+          eq(user_addresses.id, Number(addressId)),
+          eq(user_addresses.user_id, userId)
+        )
+      )
+      .returning()
+
+    if (!address.length) {
+      return c.json({ error: 'Address not found or not authorized' }, 404)
+    }
+
+    return c.json({ address: address[0] }, 200)
+  } catch (error) {
+    console.error(error)
+    return c.json({ error: 'Invalid input' }, 400)
+  }
+}
+
+export async function deleteUserAddressById(c: Context) {
+  const userId = c.req.param('userId')
+  const addressId = Number(c.req.param('id'))
+
+  if (
+    !addressId ||
+    !userId ||
+    typeof addressId !== 'number' ||
+    typeof userId !== 'string'
+  ) {
+    return c.json({ error: 'Invalid  address ID' }, 400)
+  }
+  try {
+    const address = await db
+      .delete(user_addresses)
+      .where(
+        and(
+          eq(user_addresses.id, addressId),
+          eq(user_addresses.user_id, userId)
+        )
+      )
+      .returning()
+
+    if (!address.length) {
+      return c.json({ error: 'Address not found or not authorized' }, 404)
+    }
+
+    return c.json({ address: address[0] }, 200)
+  } catch (error) {
+    console.log(error)
     return c.json({ error: 'Invalid input' }, 400)
   }
 }
