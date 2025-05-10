@@ -1,11 +1,12 @@
 import { Context } from 'hono'
 import { db } from '../config/database'
+import { eq } from 'drizzle-orm'
 import {
   users,
+  user_addresses,
   createUserSchema,
   type CreateUserInput,
 } from '../schema/user.schema'
-import { eq } from 'drizzle-orm'
 
 export async function createUser(c: Context) {
   try {
@@ -23,7 +24,11 @@ export async function createUser(c: Context) {
 
 export async function getUsers(c: Context) {
   try {
-    const allUsers = await db.select().from(users).limit(10)
+    const allUsers = await db
+      .select()
+      .from(users)
+      .limit(10)
+      .orderBy(users.created_at)
     return c.json(allUsers)
   } catch (error) {
     console.error(error)
@@ -32,14 +37,14 @@ export async function getUsers(c: Context) {
 }
 
 export async function getUserById(c: Context) {
-  const id = c.req.param('id') // ✅ treat as string
+  const id = c.req.param('id')
 
   if (!id || typeof id !== 'string') {
     return c.json({ error: 'Invalid user ID' }, 400)
   }
 
   try {
-    const user = await db.select().from(users).where(eq(users.user_id, id))
+    const user = await db.select().from(users).where(eq(users.id, id))
 
     if (!user.length) {
       return c.json({ error: 'User not found' }, 404)

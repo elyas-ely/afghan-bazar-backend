@@ -9,25 +9,28 @@ import { InferInsertModel } from 'drizzle-orm'
 import { z } from 'zod'
 
 export const users = pgTable('users', {
-  user_id: varchar('user_id', { length: 255 }).primaryKey(), // ✅ now a UUID string
+  id: varchar('id', { length: 255 }).primaryKey(),
   username: varchar('username', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  bio: varchar('bio', { length: 255 }),
-  seller: boolean('seller').notNull().default(false),
   profile: varchar('profile'),
-  background: varchar('background'),
-  createdAt: timestamp('created_at').defaultNow(),
+  phone_number: varchar('phone_number', { length: 20 }),
+  created_at: timestamp('created_at').defaultNow(),
+})
+
+export const user_addresses = pgTable('user_addresses', {
+  id: serial('id').primaryKey(),
+  user_id: varchar('user_id', { length: 255 }).notNull(),
+  address1: varchar('address1', { length: 255 }),
+  address2: varchar('address2', { length: 255 }),
+  zipcode: varchar('zipcode', { length: 255 }),
 })
 
 // Zod schema for runtime validation
 export const createUserSchema = z.object({
-  user_id: z.string(), // ✅ must now be provided and must be a valid UUID
+  id: z.string(),
   username: z.string().min(1).max(255),
   email: z.string().email().max(255),
-  bio: z.string().max(255).nullable().optional(),
-  seller: z.boolean().default(false),
   profile: z.string().optional(),
-  background: z.string().optional(),
 })
 
 // ✅ This matches the shape expected by db.insert(users).values()
