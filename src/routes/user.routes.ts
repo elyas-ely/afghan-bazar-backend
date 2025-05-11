@@ -3,13 +3,9 @@ import {
   createUser,
   getUsers,
   getUserById,
-  getUserAddress,
-  createUserAddress,
-  updateUserAddress,
-  getUserAddressById,
-  deleteUserAddressById,
 } from '../controllers/user.controller'
 import { errorHandler } from '../middleware/error.middleware'
+import addressRouter from './address.routes'
 
 const router = new Hono()
 
@@ -20,14 +16,6 @@ router.use('*', errorHandler)
 router.get('/', getUsers)
 router.post('/', createUser)
 router.get('/:userId', getUserById)
-
-// User address routes
-const addressRouter = new Hono()
-addressRouter.get('/', getUserAddress)
-addressRouter.post('/', createUserAddress)
-addressRouter.get('/:addressId', getUserAddressById)
-addressRouter.delete('/:addressId', deleteUserAddressById)
-addressRouter.put('/:addressId', updateUserAddress)
 
 // Mount address routes under user routes
 router.route('/:userId/addresses', addressRouter)

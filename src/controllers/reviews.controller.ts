@@ -1,5 +1,3 @@
-// reviews
-
 import { Context } from 'hono'
 import { reviews } from '../schema/review.schema'
 import { users } from '../schema/user.schema'
