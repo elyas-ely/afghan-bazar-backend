@@ -1,6 +1,6 @@
 import { Context } from 'hono'
 import { db } from '../config/database'
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 
 import { createProductSchema, products } from '../schema/product.schema'
 
@@ -9,8 +9,8 @@ export async function getProducts(c: Context) {
     const allProducts = await db
       .select()
       .from(products)
+      .orderBy(desc(products.created_at))
       .limit(10)
-      .orderBy(products.created_at)
     return c.json(allProducts)
   } catch (error) {
     console.error(error)
