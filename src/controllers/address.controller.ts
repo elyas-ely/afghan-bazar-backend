@@ -5,10 +5,10 @@ import {
   getUserAddressById,
   createUserAddress,
   updateUserAddress,
-  deleteUserAddress
+  deleteUserAddress,
 } from '../services/address.service'
 
-export async function getUserAddress(c: Context) {
+export async function getUserAddressesFn(c: Context) {
   const userId = c.req.param('userId')
 
   if (!userId) {
@@ -24,7 +24,7 @@ export async function getUserAddress(c: Context) {
   }
 }
 
-export async function getUserAddressById(c: Context) {
+export async function getUserAddressByIdFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
   const userId = c.req.param('userId')
 
@@ -46,7 +46,7 @@ export async function getUserAddressById(c: Context) {
   }
 }
 
-export async function createUserAddress(c: Context) {
+export async function createUserAddressFn(c: Context) {
   const userId = c.req.param('userId')
 
   if (!userId) {
@@ -55,8 +55,11 @@ export async function createUserAddress(c: Context) {
 
   try {
     const body = await c.req.json()
-    const validatedData = createUserAddressSchema.parse({ ...body, user_id: userId })
-    
+    const validatedData = createUserAddressSchema.parse({
+      ...body,
+      user_id: userId,
+    })
+
     const newAddress = await createUserAddress(validatedData)
     return c.json({ address: newAddress }, 201)
   } catch (error) {
@@ -65,7 +68,7 @@ export async function createUserAddress(c: Context) {
   }
 }
 
-export async function updateUserAddress(c: Context) {
+export async function updateUserAddressFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
   const userId = c.req.param('userId')
 
@@ -75,8 +78,11 @@ export async function updateUserAddress(c: Context) {
 
   try {
     const body = await c.req.json()
-    const validatedData = createUserAddressSchema.parse({ ...body, user_id: userId })
-    
+    const validatedData = createUserAddressSchema.parse({
+      ...body,
+      user_id: userId,
+    })
+
     const address = await updateUserAddress(addressId, userId, validatedData)
 
     if (!address) {
@@ -90,7 +96,7 @@ export async function updateUserAddress(c: Context) {
   }
 }
 
-export async function deleteUserAddressById(c: Context) {
+export async function deleteUserAddressFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
   const userId = c.req.param('userId')
 

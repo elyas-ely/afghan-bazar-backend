@@ -1,18 +1,18 @@
 import { Hono } from 'hono'
 import {
-  createUserAddress,
-  deleteUserAddressById,
-  getUserAddress,
-  getUserAddressById,
-  updateUserAddress,
+  createUserAddressFn,
+  deleteUserAddressFn,
+  getUserAddressByIdFn,
+  getUserAddressesFn,
+  updateUserAddressFn,
 } from '../controllers/address.controller'
 
 const addressRouter = new Hono()
 
-addressRouter.get('/', getUserAddress)
-addressRouter.get('/:addressId', getUserAddressById)
-addressRouter.post('/', createUserAddress)
-addressRouter.put('/:addressId', updateUserAddress)
-addressRouter.delete('/:addressId', deleteUserAddressById)
+addressRouter.get('/', getUserAddressesFn)
+addressRouter.get('/:addressId', getUserAddressByIdFn)
+addressRouter.post('/', createUserAddressFn)
+addressRouter.put('/:addressId', updateUserAddressFn)
+addressRouter.delete('/:addressId', deleteUserAddressFn)
 
 export default addressRouter
