@@ -13,6 +13,6 @@ const v1 = new Hono()
 v1.route('/users', userRoutes)
 v1.route('/products', productRoutes)
 
-app.route('/api/v1', v1)
+app.route('/api', v1)
 
 export default app

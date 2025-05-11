@@ -88,7 +88,7 @@ export async function getUserAddress(c: Context) {
 }
 
 export async function getUserAddressById(c: Context) {
-  const addressId = Number(c.req.param('id'))
+  const addressId = Number(c.req.param('addressId'))
   const userId = c.req.param('userId')
 
   if (

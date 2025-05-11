@@ -54,3 +54,19 @@ CREATE INDEX idx_products_tags ON products USING GIN(tags);
 CREATE INDEX idx_products_ingredients ON products USING GIN(ingredients);
 CREATE INDEX idx_products_created_at ON products(created_at);
 
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_reviews_product_id ON reviews(product_id);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX idx_reviews_created_at ON reviews(created_at DESC);
+
+
