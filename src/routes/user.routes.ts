@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import {
-  createUser,
-  getUsers,
-  getUserById,
+  createUserFn,
+  getAllUsersFn,
+  getUserByIdFn,
 } from '../controllers/user.controller'
 import { errorHandler } from '../middleware/error.middleware'
 import addressRouter from './address.routes'
@@ -13,9 +13,9 @@ const router = new Hono()
 router.use('*', errorHandler)
 
 // User routes
-router.get('/', getUsers)
-router.post('/', createUser)
-router.get('/:userId', getUserById)
+router.get('/', getAllUsersFn)
+router.get('/:userId', getUserByIdFn)
+router.post('/', createUserFn)
 
 // Mount address routes under user routes
 router.route('/:userId/addresses', addressRouter)
