@@ -31,6 +31,7 @@ export const user_addresses = pgTable('user_addresses', {
   address1: varchar('address1', { length: 255 }),
   address2: varchar('address2', { length: 255 }),
   zipcode: varchar('zipcode', { length: 255 }),
+  created_at: timestamp('created_at').defaultNow(),
 })
 
 export const createUserAddressSchema = z.object({
