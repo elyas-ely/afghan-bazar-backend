@@ -4,6 +4,7 @@ import {
   getAllUsersFn,
   getUserByIdFn,
   updateUserFn,
+  deleteUserFn,
 } from '../controllers/user.controller'
 import { errorHandler } from '../middleware/error.middleware'
 import addressRouter from './address.routes'
@@ -18,6 +19,7 @@ router.get('/', getAllUsersFn)
 router.get('/:userId', getUserByIdFn)
 router.post('/', createUserFn)
 router.patch('/:userId', updateUserFn)
+router.delete('/:userId', deleteUserFn)
 
 // Mount address routes under user routes
 router.route('/:userId/addresses', addressRouter)

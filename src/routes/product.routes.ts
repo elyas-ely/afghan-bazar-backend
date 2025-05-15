@@ -1,8 +1,10 @@
 import { Hono } from 'hono'
 import {
   createProduct,
-  getProductById,
+  deleteProductFn,
+  getProductByIdFn,
   getProducts,
+  updateProductFn,
 } from '../controllers/products.controller'
 import reviewRouter from './reviews.routes'
 
@@ -10,8 +12,10 @@ const router = new Hono()
 
 // Product routes
 router.get('/', getProducts)
-router.get('/:id', getProductById)
+router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)
+router.patch('/:id', updateProductFn)
+router.delete('/:id', deleteProductFn)
 
 // Review routes
 router.route('/:id/reviews', reviewRouter)

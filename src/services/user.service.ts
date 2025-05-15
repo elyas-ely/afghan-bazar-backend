@@ -1,7 +1,8 @@
 import { db } from '../config/database'
 import { eq } from 'drizzle-orm'
 import { users } from '../schema/user.schema'
-import { CreateUserInput, UpdateUserInput } from '../schema/user.schema'
+import { UpdateUserInput } from '../schema/user.schema'
+import { CreateUserInput } from '../types/user.types'
 
 export async function getAllUsers() {
   const allUsers = await db.select().from(users).limit(10)
@@ -30,4 +31,16 @@ export async function updateUser(userId: string, data: UpdateUserInput) {
     .returning()
 
   return updatedUser[0]
+}
+
+/**
+ * Delete a user by their ID
+ */
+export async function deleteUser(userId: string) {
+  const deletedUser = await db
+    .delete(users)
+    .where(eq(users.id, userId))
+    .returning()
+  
+  return deletedUser[0]
 }

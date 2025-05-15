@@ -6,6 +6,7 @@ import {
   getUserById,
   createNewUser,
   updateUser,
+  deleteUser,
 } from '../services/user.service'
 
 export async function getAllUsersFn(c: Context) {
@@ -83,6 +84,30 @@ export async function updateUserFn(c: Context) {
       return c.json({ error: error.errors }, 400)
     }
 
+    console.error(error)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
+}
+
+export async function deleteUserFn(c: Context) {
+  const userId = c.req.param('userId')
+
+  if (!userId) {
+    return c.json({ error: 'User ID is required' }, 400)
+  }
+
+  try {
+    const deletedUser = await deleteUser(userId)
+
+    if (!deletedUser) {
+      return c.json({ error: 'User not found' }, 404)
+    }
+
+    return c.json({
+      message: 'User deleted successfully',
+      user: deletedUser,
+    })
+  } catch (error) {
     console.error(error)
     return c.json({ error: 'Internal Server Error' }, 500)
   }
