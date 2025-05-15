@@ -25,6 +25,14 @@ export const createUserSchema = z.object({
   profile: z.string().optional(),
 })
 
+// Update schema with all fields optional for partial updates
+export const updateUserSchema = z.object({
+  username: z.string().min(1).max(255).optional(),
+  email: z.string().email().max(255).optional(),
+  profile: z.string().optional(),
+  phone_number: z.string().max(20).optional(),
+})
+
 export const user_addresses = pgTable('user_addresses', {
   id: serial('id').primaryKey(),
   user_id: varchar('user_id', { length: 255 }).notNull(),
@@ -43,3 +51,4 @@ export const createUserAddressSchema = z.object({
 
 export type createUserAddressInput = InferInsertModel<typeof user_addresses>
 export type CreateUserInput = InferInsertModel<typeof users>
+export type UpdateUserInput = z.infer<typeof updateUserSchema>

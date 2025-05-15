@@ -1,10 +1,11 @@
 import { Context } from 'hono'
-import { createUserSchema } from '../schema/user.schema'
+import { createUserSchema, updateUserSchema } from '../schema/user.schema'
 
 import {
   getAllUsers,
   getUserById,
   createNewUser,
+  updateUser,
 } from '../services/user.service'
 
 export async function getAllUsersFn(c: Context) {
@@ -51,6 +52,34 @@ export async function createUserFn(c: Context) {
     return c.json({ user: newUser }, 201)
   } catch (error: any) {
     if (error.name === 'ValidationError') {
+      return c.json({ error: error.errors }, 400)
+    }
+
+    console.error(error)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
+}
+
+export async function updateUserFn(c: Context) {
+  const userId = c.req.param('userId')
+
+  if (!userId) {
+    return c.json({ error: 'User ID is required' }, 400)
+  }
+
+  try {
+    const body = await c.req.json()
+    const validatedData = updateUserSchema.parse(body)
+
+    if (Object.keys(validatedData).length === 0) {
+      return c.json({ error: 'No valid fields to update provided' }, 400)
+    }
+
+    const updatedUser = await updateUser(userId, validatedData)
+
+    return c.json({ user: updatedUser })
+  } catch (error: any) {
+    if (error.name === 'ZodError') {
       return c.json({ error: error.errors }, 400)
     }
 
