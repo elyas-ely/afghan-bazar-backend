@@ -1,5 +1,8 @@
 import { Context } from 'hono'
-import { createUserAddressSchema } from '../schema/user.schema'
+import {
+  createUserAddressSchema,
+  updateUserAddressSchema,
+} from '../schema/address.schema'
 import {
   getUserAddresses,
   getUserAddressById,
@@ -55,10 +58,7 @@ export async function createUserAddressFn(c: Context) {
 
   try {
     const body = await c.req.json()
-    const validatedData = createUserAddressSchema.parse({
-      ...body,
-      user_id: userId,
-    })
+    const validatedData = createUserAddressSchema.parse(body)
 
     const newAddress = await createUserAddress(validatedData)
     return c.json({ address: newAddress }, 201)
@@ -78,11 +78,12 @@ export async function updateUserAddressFn(c: Context) {
 
   try {
     const body = await c.req.json()
-    const validatedData = createUserAddressSchema.parse({
-      ...body,
-      user_id: userId,
-    })
 
+    const validatedData = updateUserAddressSchema.parse(body)
+
+    if (Object.keys(validatedData).length === 0) {
+      return c.json({ error: 'No valid fields to update provided' }, 400)
+    }
     const address = await updateUserAddress(addressId, userId, validatedData)
 
     if (!address) {

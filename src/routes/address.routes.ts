@@ -12,7 +12,7 @@ const addressRouter = new Hono()
 addressRouter.get('/', getUserAddressesFn)
 addressRouter.get('/:addressId', getUserAddressByIdFn)
 addressRouter.post('/', createUserAddressFn)
-addressRouter.put('/:addressId', updateUserAddressFn)
+addressRouter.patch('/:addressId', updateUserAddressFn)
 addressRouter.delete('/:addressId', deleteUserAddressFn)
 
 export default addressRouter

@@ -1,7 +1,8 @@
 import { db } from '../config/database'
 import { and, desc, eq } from 'drizzle-orm'
-import { user_addresses } from '../schema/user.schema'
-import { CreateAddressInput } from '../types'
+import { user_addresses } from '../schema/address.schema'
+import { CreateUserAddressInput, UpdateUserAddressInput } from '../types/address.types'
+
 
 // =========================
 // ====== GET ADDRESS  =====
@@ -32,7 +33,7 @@ export async function getUserAddressById(addressId: number, userId: string) {
 // =========================
 // ====== POST ADDRESS  ====
 // =========================
-export async function createUserAddress(data: CreateAddressInput) {
+export async function createUserAddress(data: CreateUserAddressInput) {
   const newAddress = await db.insert(user_addresses).values(data).returning()
   return newAddress[0]
 }
@@ -47,7 +48,7 @@ export async function createUserAddress(data: CreateAddressInput) {
 export async function updateUserAddress(
   addressId: number,
   userId: string,
-  data: CreateAddressInput
+  data: UpdateUserAddressInput
 ) {
   const address = await db
     .update(user_addresses)

@@ -1,19 +1,22 @@
-import { InferModel } from 'drizzle-orm'
-import { users, user_addresses } from '../schema/user.schema'
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
+import { updateUserSchema, users } from '../schema/user.schema'
+import { z } from 'zod'
 
-export type User = InferModel<typeof users>
-export type UserAddress = InferModel<typeof user_addresses>
+/**
+ * User Types
+ */
 
+// User entity and input types
+export type User = InferSelectModel<typeof users>
+export type CreateUserInput = InferInsertModel<typeof users>
+export type UpdateUserInput = z.infer<typeof updateUserSchema>
+
+// User service interface
 export interface UserService {
   getUsers(): Promise<User[]>
   getUserById(id: string): Promise<User | null>
-  createUser(data: Omit<User, 'id'>): Promise<User>
+  createUser(data: CreateUserInput): Promise<User>
+  updateUser(id: string, data: UpdateUserInput): Promise<User | null>
 }
 
-export interface UserAddressService {
-  getUserAddresses(userId: string): Promise<UserAddress[]>
-  getUserAddressById(userId: string, addressId: number): Promise<UserAddress | null>
-  createUserAddress(userId: string, data: Omit<UserAddress, 'id'>): Promise<UserAddress>
-  deleteUserAddress(userId: string, addressId: number): Promise<UserAddress | null>
-  updateUserAddress(userId: string, addressId: number, data: Partial<UserAddress>): Promise<UserAddress | null>
-}
+// Note: Address-related types are now in address.types.ts
