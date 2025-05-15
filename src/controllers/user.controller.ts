@@ -39,14 +39,22 @@ export async function getUserByIdFn(c: Context) {
 }
 
 export async function createUserFn(c: Context) {
-  try {
-    const body = await c.req.json()
-    const validatedData = createUserSchema.parse(body)
+  const body = await c.req.json()
 
+  if (!body?.id) {
+    return c.json({ error: 'User id is required' }, 400)
+  }
+
+  try {
+    const validatedData = createUserSchema.parse(body)
     const newUser = await createNewUser(validatedData)
     return c.json({ user: newUser }, 201)
-  } catch (error) {
+  } catch (error: any) {
+    if (error.name === 'ValidationError') {
+      return c.json({ error: error.errors }, 400)
+    }
+
     console.error(error)
-    return c.json({ error: 'Invalid input' }, 400)
+    return c.json({ error: 'Internal Server Error' }, 500)
   }
 }
