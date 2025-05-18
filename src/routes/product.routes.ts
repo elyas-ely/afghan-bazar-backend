@@ -7,11 +7,13 @@ import {
   updateProductFn,
 } from '../controllers/products.controller'
 import reviewRouter from './reviews.routes'
+import categoryRouter from './category.routes'
 
 const router = new Hono()
 
 // Product routes
 router.get('/', getProducts)
+router.route('/categories', categoryRouter)
 router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)
 router.patch('/:id', updateProductFn)
