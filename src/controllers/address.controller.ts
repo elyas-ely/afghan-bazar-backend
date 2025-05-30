@@ -50,7 +50,7 @@ export async function getUserAddressByIdFn(c: Context) {
 }
 
 export async function createUserAddressFn(c: Context) {
-  const userId = c.req.param('userId')
+  const userId = c.req.param('userId') as string
 
   if (!userId) {
     return c.json({ error: 'User ID is required' }, 400)
@@ -58,6 +58,8 @@ export async function createUserAddressFn(c: Context) {
 
   try {
     const body = await c.req.json()
+    console.log(userId)
+
     const validatedData = createUserAddressSchema.parse(body)
 
     const newAddress = await createUserAddress(validatedData)
@@ -70,11 +72,13 @@ export async function createUserAddressFn(c: Context) {
 
 export async function updateUserAddressFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
-  const userId = c.req.param('userId')
+  const userId = c.req.param('userId') as string
 
   if (!addressId || !userId) {
     return c.json({ error: 'Invalid address ID or user ID' }, 400)
   }
+
+  console.log(userId)
 
   try {
     const body = await c.req.json()
@@ -98,8 +102,8 @@ export async function updateUserAddressFn(c: Context) {
 }
 
 export async function deleteUserAddressFn(c: Context) {
+  const userId = c.req.param('userId') as string
   const addressId = Number(c.req.param('addressId'))
-  const userId = c.req.param('userId')
 
   if (!addressId || !userId) {
     return c.json({ error: 'Invalid address ID or user ID' }, 400)
