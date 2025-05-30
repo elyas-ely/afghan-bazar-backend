@@ -33,21 +33,25 @@ CREATE TABLE If NOT EXISTS categories (
 );
 
 
-CREATE TABLE If NOT EXISTS products (
+CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    popular BOOLEAN DEFAULT FALSE,
     category_id INTEGER REFERENCES categories(id) 
         ON DELETE CASCADE 
         ON UPDATE CASCADE,
     description TEXT,
     price NUMERIC(10, 2) NOT NULL,
-    weight VARCHAR(50),
-    packaging VARCHAR(100),
+    price_unit VARCHAR(50),
+    weights VARCHAR(10)[],
+    features TEXT[],
+    origin VARCHAR(100),
+    instructions TEXT,
     ingredients TEXT[],
     images TEXT[],
-    tags TEXT[],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE INDEX  idx_products_category_id ON products(category_id);
 CREATE INDEX idx_products_tags ON products USING GIN(tags);

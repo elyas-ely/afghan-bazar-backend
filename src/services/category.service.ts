@@ -13,13 +13,11 @@ export async function getAllProductsByCategory(categoryId: number) {
       description: products.description,
       price: products.price,
       images: products.images,
-      tags: products.tags,
-      weight: products.weight,
-      packaging: products.packaging,
-      ingredients: products.ingredients,
-      createdAt: products.created_at,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      instructions: products.instructions,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-      totalReviews: sql<number>`COUNT(${reviews.id})`,
     })
     .from(products)
     .where(eq(products.category_id, categoryId))

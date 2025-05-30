@@ -16,14 +16,13 @@ export async function getAllProducts() {
       name: products.name,
       description: products.description,
       price: products.price,
-      images: products.images,
-      tags: products.tags,
-      weight: products.weight,
-      packaging: products.packaging,
-      ingredients: products.ingredients,
+      price_unit: products.price_unit,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      instructions: products.instructions,
       createdAt: products.created_at,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-      totalReviews: sql<number>`COUNT(${reviews.id})`,
     })
     .from(products)
     .leftJoin(reviews, eq(reviews.product_id, products.id))
@@ -44,13 +43,14 @@ export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {
     name: data.name,
     description: data.description,
-    price: data.price.toString(), // Convert price to string
+    price: data.price.toString(),
     images: data.images,
     category_id: data.category_id,
-    weight: data.weight,
-    packaging: data.packaging,
-    tags: data.tags || null,
-    ingredients: data.ingredients || null,
+    price_unit: data.price_unit,
+    weights: data.weights,
+    features: data.features,
+    origin: data.origin,
+    instructions: data.instructions,
   }
 
   const newProduct = await db.insert(products).values(dbData).returning()
@@ -78,10 +78,10 @@ export async function updateProduct(
   if (data.price !== undefined) dbData.price = data.price.toString()
   if (data.images !== undefined) dbData.images = data.images
   if (data.category_id !== undefined) dbData.category_id = data.category_id
-  if (data.weight !== undefined) dbData.weight = data.weight
-  if (data.packaging !== undefined) dbData.packaging = data.packaging
-  if (data.tags !== undefined) dbData.tags = data.tags
-  if (data.ingredients !== undefined) dbData.ingredients = data.ingredients
+  if (data.weights !== undefined) dbData.weights = data.weights
+  if (data.features !== undefined) dbData.features = data.features
+  if (data.origin !== undefined) dbData.origin = data.origin
+  if (data.instructions !== undefined) dbData.instructions = data.instructions
 
   const updatedProduct = await db
     .update(products)
