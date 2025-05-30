@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq, sql } from 'drizzle-orm'
+import { desc, eq, sql, and } from 'drizzle-orm'
 import { products } from '../schema/product.schema'
 import {
   UpdateProductInput,
@@ -9,7 +9,7 @@ import {
 } from '../types/product.types'
 import { reviews } from '../schema/review.schema'
 
-export async function getAllProducts() {
+export async function getAllProducts(categoryId: number) {
   const allProducts = await db
     .select({
       id: products.id,
@@ -17,24 +17,68 @@ export async function getAllProducts() {
       description: products.description,
       price: products.price,
       price_unit: products.price_unit,
+      images: products.images,
       weights: products.weights,
       features: products.features,
       origin: products.origin,
       instructions: products.instructions,
-      createdAt: products.created_at,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
     })
     .from(products)
+    .where(eq(products.category_id, categoryId))
     .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
-    .limit(10)
+
+  return allProducts
+}
+
+export async function getPopularProducts(categoryId: number) {
+  const allProducts = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+    })
+    .from(products)
+    .where(
+      and(eq(products.category_id, categoryId), eq(products.popular, true))
+    )
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .groupBy(products.id)
+    .orderBy(desc(products.created_at))
 
   return allProducts
 }
 
 export async function getProductById(id: number) {
-  const product = await db.select().from(products).where(eq(products.id, id))
+  const product = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+    })
+    .from(products)
+    .where(eq(products.id, id))
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .groupBy(products.id)
+    .orderBy(desc(products.created_at))
   return product[0]
 }
 

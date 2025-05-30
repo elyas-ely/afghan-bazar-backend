@@ -21,6 +21,7 @@ export type CreateProductInput = Omit<
   weights: string[]
   features: string[]
   origin: string
+  rating: number
   instructions: string
 }
 

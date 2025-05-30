@@ -6,6 +6,7 @@ import {
   numeric,
   text,
   integer,
+  boolean,
 } from 'drizzle-orm/pg-core'
 
 import { z } from 'zod'
@@ -16,6 +17,7 @@ export const products = pgTable('products', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description').notNull(),
   price: numeric('price').notNull(),
+  popular: boolean('popular').default(false),
   price_unit: varchar('price_unit', { length: 50 }),
   weights: varchar('weights', { length: 10 }).array(),
   features: text('features').array(),

@@ -5,7 +5,7 @@ import {
   updateReviewSchema,
 } from '../schema/review.schema'
 import { users } from '../schema/user.schema'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { db } from '../config/database'
 import { z } from 'zod'
 
@@ -23,6 +23,7 @@ export async function getProductReview(c: Context) {
         rating: reviews.rating,
         userName: users.username,
         profile: users.profile,
+        country: users.country,
         comment: reviews.comment,
         createdAt: reviews.created_at,
       })
@@ -33,7 +34,12 @@ export async function getProductReview(c: Context) {
       .limit(10)
       .offset(0)
 
-    return c.json(data)
+    const [{ count }] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(reviews)
+      .where(eq(reviews.product_id, productId))
+
+    return c.json({ data, count })
   } catch (error) {
     console.log(error)
     return c.json({ error: 'Internal Server Error' }, 500)

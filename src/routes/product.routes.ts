@@ -2,18 +2,18 @@ import { Hono } from 'hono'
 import {
   createProduct,
   deleteProductFn,
+  getPopularProductsFn,
   getProductByIdFn,
-  getProducts,
+  getRecommendedProducts,
   updateProductFn,
 } from '../controllers/products.controller'
 import reviewRouter from './reviews.routes'
-import categoryRouter from './category.routes'
 
 const router = new Hono()
 
 // Product routes
-router.get('/', getProducts)
-router.route('/categories', categoryRouter)
+router.get('/', getRecommendedProducts)
+router.get('/popular', getPopularProductsFn)
 router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)
 router.patch('/:id', updateProductFn)

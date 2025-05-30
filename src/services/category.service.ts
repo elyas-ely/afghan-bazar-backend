@@ -5,7 +5,7 @@ import { reviews } from '../schema/review.schema'
 // =========================
 // ====== GET ADDRESS  =====
 // =========================
-export async function getAllProductsByCategory(categoryId: number) {
+export async function getAllProducts(categoryId: number) {
   const categories = await db
     .select({
       id: products.id,

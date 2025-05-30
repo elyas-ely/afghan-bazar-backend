@@ -12,10 +12,32 @@ import {
 } from '../services/product.service'
 import { CreateProductInput, UpdateProductInput } from '../types/product.types'
 
-export async function getProducts(c: Context) {
+export async function getRecommendedProducts(c: Context) {
+  const categoryId = Number(c.req.queries('categoryId'))
+
+  if (!categoryId) {
+    return c.json({ error: 'Category ID is required' }, 400)
+  }
+
   try {
-    const allProducts = await getAllProducts()
-    return c.json(allProducts)
+    const products = await getAllProducts(categoryId)
+    return c.json(products)
+  } catch (error) {
+    console.error(error)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
+}
+
+export async function getPopularProductsFn(c: Context) {
+  const categoryId = Number(c.req.queries('categoryId'))
+
+  if (!categoryId) {
+    return c.json({ error: 'Category ID is required' }, 400)
+  }
+
+  try {
+    const products = await getAllProducts(categoryId)
+    return c.json(products)
   } catch (error) {
     console.error(error)
     return c.json({ error: 'Internal Server Error' }, 500)
