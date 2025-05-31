@@ -21,6 +21,7 @@ export type CreateProductInput = Omit<
   weights: string[]
   features: string[]
   origin: string
+  popular: boolean
   rating: number
   instructions: string
 }
@@ -38,6 +39,8 @@ export type DbCreateProductInput = {
   weights: string[]
   features: string[]
   origin: string
+  popular: boolean
+  rating: number
   instructions: string
 }
 
@@ -52,6 +55,8 @@ export type DbUpdateProductInput = {
   weights?: string[]
   features?: string[]
   origin?: string
+  popular?: boolean
+  rating?: number
   instructions?: string
 }
 

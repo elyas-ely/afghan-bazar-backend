@@ -10,6 +10,7 @@ import {
   deleteProduct,
   getPopularProducts,
   getRecommendedProducts,
+  getSearchProducts,
 } from '../services/product.service'
 import { CreateProductInput, UpdateProductInput } from '../types/product.types'
 
@@ -106,18 +107,59 @@ export async function getProductByIdFn(c: Context) {
       )
     }
 
-    return c.json(product)
+    return c.json({
+      success: true,
+      product,
+    })
   } catch (error) {
     console.error(error)
     return c.json(
       {
         success: false,
         message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
       },
       500
     )
   }
 }
+
+export async function getSearchProductsFn(c: Context) {
+  const query = String(c.req.queries('query'))
+
+  if (!query) {
+    return c.json(
+      {
+        success: false,
+        message: 'Search query is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const products = await getSearchProducts(query)
+    return c.json({
+      success: true,
+      products,
+    })
+  } catch (error) {
+    console.error(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
+      },
+      500
+    )
+  }
+}
+//
+//
+//
+//
+//
 
 export async function createProduct(c: Context) {
   try {

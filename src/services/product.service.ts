@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq, sql, and } from 'drizzle-orm'
+import { desc, eq, sql, and, ilike } from 'drizzle-orm'
 import { products } from '../schema/product.schema'
 import {
   UpdateProductInput,
@@ -94,6 +94,20 @@ export async function getProductById(id: number) {
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
   return product[0]
+}
+
+export async function getSearchProducts(query: string) {
+  const allProducts = await db
+    .select({
+      id: products.id,
+      name: products.name,
+    })
+    .from(products)
+    .where(ilike(products.name, `${query}%`))
+    .groupBy(products.id)
+    .orderBy(desc(products.name))
+
+  return allProducts
 }
 
 export async function createNewProduct(data: CreateProductInput) {
