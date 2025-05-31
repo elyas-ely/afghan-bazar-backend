@@ -31,7 +31,7 @@ export async function getRecommendedProductsFn(c: Context) {
     const products = await getRecommendedProducts(categoryId)
     return c.json({
       success: true,
-      data: products,
+      products,
     })
   } catch (error) {
     console.error(error)
@@ -62,13 +62,17 @@ export async function getPopularProductsFn(c: Context) {
 
   try {
     const products = await getPopularProducts(categoryId)
-    return c.json(products)
+    return c.json({
+      success: true,
+      products,
+    })
   } catch (error) {
     console.error(error)
     return c.json(
       {
         success: false,
         message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
       },
       500
     )
