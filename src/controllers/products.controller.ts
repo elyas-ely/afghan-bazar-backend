@@ -21,6 +21,7 @@ export async function getRecommendedProductsFn(c: Context) {
       {
         success: false,
         message: 'Category ID is required and must be a number',
+        code: 'CATEGORY_ID_INVALID',
       },
       400
     )
@@ -28,13 +29,17 @@ export async function getRecommendedProductsFn(c: Context) {
 
   try {
     const products = await getRecommendedProducts(categoryId)
-    return c.json(products)
+    return c.json({
+      success: true,
+      data: products,
+    })
   } catch (error) {
     console.error(error)
     return c.json(
       {
         success: false,
         message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
       },
       500
     )
@@ -42,13 +47,14 @@ export async function getRecommendedProductsFn(c: Context) {
 }
 
 export async function getPopularProductsFn(c: Context) {
-  const categoryId = Number(c.req.queries('categoryId') ?? 0)
+  const categoryId = Number(c.req.queries('categoryId'))
 
   if (isNaN(categoryId)) {
     return c.json(
       {
         success: false,
         message: 'Category ID is required and must be a number',
+        code: 'CATEGORY_ID_INVALID',
       },
       400
     )
@@ -73,7 +79,7 @@ export async function getProductByIdFn(c: Context) {
   const idParam = c.req.param('id')
   const productId = Number(idParam)
 
-  if (!productId || isNaN(productId)) {
+  if (!productId) {
     return c.json(
       {
         success: false,
@@ -133,7 +139,7 @@ export async function updateProductFn(c: Context) {
   const idParam = c.req.param('id')
   const productId = Number(idParam)
 
-  if (!productId || isNaN(productId)) {
+  if (!productId) {
     return c.json(
       {
         success: false,
@@ -173,7 +179,14 @@ export async function updateProductFn(c: Context) {
     // The service will handle the price conversion
     const updatedProduct = await updateProduct(productId, validatedData as any)
 
-    return c.json({ product: updatedProduct })
+    return c.json(
+      {
+        success: true,
+        message: 'Product updated successfully',
+        product: updatedProduct,
+      },
+      200
+    )
   } catch (error: any) {
     if (error.name === 'ZodError') {
       return c.json(
@@ -200,7 +213,7 @@ export async function deleteProductFn(c: Context) {
   const idParam = c.req.param('id')
   const productId = Number(idParam)
 
-  if (!productId || isNaN(productId)) {
+  if (!productId) {
     return c.json(
       {
         success: false,
