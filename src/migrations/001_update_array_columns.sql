@@ -63,12 +63,13 @@ CREATE TABLE IF NOT EXISTS reviews (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    rating NUMERIC(2, 1) NOT NULL CHECK (rating IN (1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.5, 5.0)),
+    rating INTEGER NOT NULL CHECK (rating IN (1, 2, 3, 4, 5)),
     comment TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, product_id)
 );
+
 
 
 
