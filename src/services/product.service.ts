@@ -9,8 +9,8 @@ import {
 } from '../types/product.types'
 import { reviews } from '../schema/review.schema'
 
-export async function getAllProducts(categoryId: number) {
-  const allProducts = await db
+export async function getRecommendedProducts(categoryId: number) {
+  const query = db
     .select({
       id: products.id,
       name: products.name,
@@ -18,6 +18,7 @@ export async function getAllProducts(categoryId: number) {
       price: products.price,
       price_unit: products.price_unit,
       images: products.images,
+      popular: products.popular,
       weights: products.weights,
       features: products.features,
       origin: products.origin,
@@ -25,16 +26,21 @@ export async function getAllProducts(categoryId: number) {
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
     })
     .from(products)
-    .where(eq(products.category_id, categoryId))
     .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
 
+  // Only apply the category filter if categoryId is not 0
+  if (categoryId !== 0) {
+    query.where(eq(products.category_id, categoryId))
+  }
+
+  const allProducts = await query
   return allProducts
 }
 
 export async function getPopularProducts(categoryId: number) {
-  const allProducts = await db
+  const baseQuery = db
     .select({
       id: products.id,
       name: products.name,
@@ -45,17 +51,25 @@ export async function getPopularProducts(categoryId: number) {
       weights: products.weights,
       features: products.features,
       origin: products.origin,
+      popular: products.popular,
       instructions: products.instructions,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
     })
     .from(products)
-    .where(
-      and(eq(products.category_id, categoryId), eq(products.popular, true))
-    )
     .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
 
+  // Build conditional where clause
+  if (categoryId !== 0) {
+    baseQuery.where(
+      and(eq(products.category_id, categoryId), eq(products.popular, true))
+    )
+  } else {
+    baseQuery.where(eq(products.popular, true))
+  }
+
+  const allProducts = await baseQuery
   return allProducts
 }
 

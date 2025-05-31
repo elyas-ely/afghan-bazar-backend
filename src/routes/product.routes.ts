@@ -4,7 +4,7 @@ import {
   deleteProductFn,
   getPopularProductsFn,
   getProductByIdFn,
-  getRecommendedProducts,
+  getRecommendedProductsFn,
   updateProductFn,
 } from '../controllers/products.controller'
 import reviewRouter from './reviews.routes'
@@ -12,7 +12,7 @@ import reviewRouter from './reviews.routes'
 const router = new Hono()
 
 // Product routes
-router.get('/', getRecommendedProducts)
+router.get('/', getRecommendedProductsFn)
 router.get('/popular', getPopularProductsFn)
 router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)

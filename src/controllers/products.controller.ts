@@ -4,43 +4,68 @@ import {
   updateProductSchema,
 } from '../schema/product.schema'
 import {
-  getAllProducts,
   getProductById,
   createNewProduct,
   updateProduct,
   deleteProduct,
+  getPopularProducts,
+  getRecommendedProducts,
 } from '../services/product.service'
 import { CreateProductInput, UpdateProductInput } from '../types/product.types'
 
-export async function getRecommendedProducts(c: Context) {
+export async function getRecommendedProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
 
-  if (!categoryId) {
-    return c.json({ error: 'Category ID is required' }, 400)
+  if (isNaN(categoryId)) {
+    return c.json(
+      {
+        success: false,
+        message: 'Category ID is required and must be a number',
+      },
+      400
+    )
   }
 
   try {
-    const products = await getAllProducts(categoryId)
+    const products = await getRecommendedProducts(categoryId)
     return c.json(products)
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
 export async function getPopularProductsFn(c: Context) {
-  const categoryId = Number(c.req.queries('categoryId'))
+  const categoryId = Number(c.req.queries('categoryId') ?? 0)
 
-  if (!categoryId) {
-    return c.json({ error: 'Category ID is required' }, 400)
+  if (isNaN(categoryId)) {
+    return c.json(
+      {
+        success: false,
+        message: 'Category ID is required and must be a number',
+      },
+      400
+    )
   }
 
   try {
-    const products = await getAllProducts(categoryId)
+    const products = await getPopularProducts(categoryId)
     return c.json(products)
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -49,20 +74,38 @@ export async function getProductByIdFn(c: Context) {
   const productId = Number(idParam)
 
   if (!productId || isNaN(productId)) {
-    return c.json({ error: 'Product ID is required and must be a number' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID is required and must be a number',
+      },
+      400
+    )
   }
 
   try {
     const product = await getProductById(productId)
 
     if (!product) {
-      return c.json({ error: 'Product not found' }, 404)
+      return c.json(
+        {
+          success: false,
+          message: 'Product not found',
+        },
+        404
+      )
     }
 
     return c.json(product)
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -76,7 +119,13 @@ export async function createProduct(c: Context) {
     return c.json({ product: newProduct }, 201)
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Invalid product data' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Invalid product data',
+      },
+      400
+    )
   }
 }
 
@@ -85,14 +134,26 @@ export async function updateProductFn(c: Context) {
   const productId = Number(idParam)
 
   if (!productId || isNaN(productId)) {
-    return c.json({ error: 'Valid product ID is required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Valid product ID is required',
+      },
+      400
+    )
   }
 
   try {
     // First check if product exists
     const existingProduct = await getProductById(productId)
     if (!existingProduct) {
-      return c.json({ error: 'Product not found' }, 404)
+      return c.json(
+        {
+          success: false,
+          message: 'Product not found',
+        },
+        404
+      )
     }
 
     const body = await c.req.json()
@@ -100,7 +161,13 @@ export async function updateProductFn(c: Context) {
     const validatedData: UpdateProductInput = updateProductSchema.parse(body)
 
     if (Object.keys(validatedData).length === 0) {
-      return c.json({ error: 'No valid fields to update provided' }, 400)
+      return c.json(
+        {
+          success: false,
+          message: 'No valid fields to update provided',
+        },
+        400
+      )
     }
 
     // The service will handle the price conversion
@@ -109,11 +176,23 @@ export async function updateProductFn(c: Context) {
     return c.json({ product: updatedProduct })
   } catch (error: any) {
     if (error.name === 'ZodError') {
-      return c.json({ error: error.errors }, 400)
+      return c.json(
+        {
+          success: false,
+          message: error.errors,
+        },
+        400
+      )
     }
 
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -122,22 +201,44 @@ export async function deleteProductFn(c: Context) {
   const productId = Number(idParam)
 
   if (!productId || isNaN(productId)) {
-    return c.json({ error: 'Valid product ID is required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Valid product ID is required',
+      },
+      400
+    )
   }
 
   try {
     const deletedProduct = await deleteProduct(productId)
 
     if (!deletedProduct) {
-      return c.json({ error: 'Product not found' }, 404)
+      return c.json(
+        {
+          success: false,
+          message: 'Product not found',
+        },
+        404
+      )
     }
 
-    return c.json({
-      message: 'Product deleted successfully',
-      product: deletedProduct,
-    })
+    return c.json(
+      {
+        success: true,
+        message: 'Product deleted successfully',
+        product: deletedProduct,
+      },
+      200
+    )
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
