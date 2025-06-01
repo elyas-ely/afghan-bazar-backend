@@ -162,14 +162,12 @@ export async function getSearchProductsFn(c: Context) {
 }
 
 export async function getFilteredProductsFn(c: Context) {
-  const filters = {
-    query: String(c.req.queries('query')),
-    categoryId: Number(c.req.queries('categoryId')),
-    minPrice: Number(c.req.queries('minPrice')),
-    maxPrice: Number(c.req.queries('maxPrice')),
-  }
+  const query = c.req.queries('query')
+  const categoryIdRaw = c.req.queries('categoryId')
+  const minPriceRaw = c.req.queries('minPrice')
+  const maxPriceRaw = c.req.queries('maxPrice')
 
-  if (!filters.query) {
+  if (!query) {
     return c.json(
       {
         success: false,
@@ -179,33 +177,11 @@ export async function getFilteredProductsFn(c: Context) {
     )
   }
 
-  try {
-    const products = await getFilteredProducts(filters)
-
-    return c.json({
-      success: true,
-      products,
-    })
-  } catch (error) {
-    console.error(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Internal Server Error',
-        code: 'INTERNAL_ERROR',
-      },
-      500
-    )
-  }
-
-  if (!filters.query) {
-    return c.json(
-      {
-        success: false,
-        message: 'Search query is required',
-      },
-      400
-    )
+  const filters: ProductFilters = {
+    query: String(query),
+    categoryId: categoryIdRaw ? Number(categoryIdRaw) : undefined,
+    minPrice: minPriceRaw ? Number(minPriceRaw) : undefined,
+    maxPrice: maxPriceRaw ? Number(maxPriceRaw) : undefined,
   }
 
   try {

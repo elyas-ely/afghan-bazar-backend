@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq, sql, and, ilike, SQL } from 'drizzle-orm'
+import { desc, eq, sql, and, ilike, SQL, asc, asc } from 'drizzle-orm'
 import { products } from '../schema/product.schema'
 import {
   UpdateProductInput,
@@ -114,8 +114,7 @@ export async function getSearchProducts(query: string) {
 export async function getFilteredProducts(filters: ProductFilters) {
   const { query, categoryId, minPrice, maxPrice } = filters
 
-  // Create base query
-  let queryBuilder = db
+  let queryBuilder: any = db
     .select({
       id: products.id,
       name: products.name,
@@ -133,46 +132,31 @@ export async function getFilteredProducts(filters: ProductFilters) {
     .from(products)
     .leftJoin(reviews, eq(reviews.product_id, products.id))
 
-  // Build SQL conditions
-  const conditions: SQL<unknown>[] = []
+  const conditions: SQL<unknown>[] = [ilike(products.name, `${query}%`)]
 
-  // Add conditions only if they are valid
-  if (query && String(query).trim() !== '') {
-    conditions.push(ilike(products.name, `${String(query).trim()}%`))
-  }
-  
-  if (categoryId && !isNaN(categoryId) && categoryId > 0) {
+  if (categoryId) {
     conditions.push(eq(products.category_id, categoryId))
   }
 
-  if (minPrice !== undefined && !isNaN(minPrice) && minPrice > 0) {
-    conditions.push(sql<boolean>`CAST(${products.price} AS NUMERIC) >= ${minPrice}`)
-  }
-  
-  if (maxPrice !== undefined && !isNaN(maxPrice) && maxPrice > 0) {
-    conditions.push(sql<boolean>`CAST(${products.price} AS NUMERIC) <= ${maxPrice}`)
+  if (minPrice !== undefined) {
+    conditions.push(
+      sql<boolean>`CAST(${products.price} AS NUMERIC) >= ${minPrice}`
+    )
   }
 
-  // Apply the WHERE clause only if we have conditions
+  if (maxPrice !== undefined) {
+    conditions.push(
+      sql<boolean>`CAST(${products.price} AS NUMERIC) <= ${maxPrice}`
+    )
+  }
+
   if (conditions.length > 0) {
-    // Following the fix from our memory - use type assertion for SQL conditions
-    if (conditions.length === 1) {
-      // If only one condition, no need to combine
-      queryBuilder = (queryBuilder as any).where(conditions[0])
-    } else {
-      // Combine multiple conditions
-      let combinedCondition = conditions[0]
-      for (let i = 1; i < conditions.length; i++) {
-        combinedCondition = and(combinedCondition, conditions[i])
-      }
-      queryBuilder = (queryBuilder as any).where(combinedCondition)
-    }
+    queryBuilder = queryBuilder.where(and(...conditions))
   }
 
-  // Execute the query with group by and order by
   const results = await queryBuilder
     .groupBy(products.id)
-    .orderBy(desc(products.created_at))
+    .orderBy(asc(products.name), desc(products.created_at))
 
   return results
 }
