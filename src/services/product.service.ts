@@ -1,11 +1,12 @@
 import { db } from '../config/database'
-import { desc, eq, sql, and, ilike } from 'drizzle-orm'
+import { desc, eq, sql, and, ilike, SQL } from 'drizzle-orm'
 import { products } from '../schema/product.schema'
 import {
   UpdateProductInput,
   CreateProductInput,
   DbCreateProductInput,
   DbUpdateProductInput,
+  ProductFilters,
 } from '../types/product.types'
 import { reviews } from '../schema/review.schema'
 
@@ -110,8 +111,73 @@ export async function getSearchProducts(query: string) {
   return allProducts
 }
 
+export async function getFilteredProducts(filters: ProductFilters) {
+  const { query, categoryId, minPrice, maxPrice } = filters
+
+  // Create base query
+  let queryBuilder = db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      popular: products.popular,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+    })
+    .from(products)
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+
+  // Build SQL conditions
+  const conditions: SQL<unknown>[] = []
+
+  // Add conditions only if they are valid
+  if (query && String(query).trim() !== '') {
+    conditions.push(ilike(products.name, `${String(query).trim()}%`))
+  }
+  
+  if (categoryId && !isNaN(categoryId) && categoryId > 0) {
+    conditions.push(eq(products.category_id, categoryId))
+  }
+
+  if (minPrice !== undefined && !isNaN(minPrice) && minPrice > 0) {
+    conditions.push(sql<boolean>`CAST(${products.price} AS NUMERIC) >= ${minPrice}`)
+  }
+  
+  if (maxPrice !== undefined && !isNaN(maxPrice) && maxPrice > 0) {
+    conditions.push(sql<boolean>`CAST(${products.price} AS NUMERIC) <= ${maxPrice}`)
+  }
+
+  // Apply the WHERE clause only if we have conditions
+  if (conditions.length > 0) {
+    // Following the fix from our memory - use type assertion for SQL conditions
+    if (conditions.length === 1) {
+      // If only one condition, no need to combine
+      queryBuilder = (queryBuilder as any).where(conditions[0])
+    } else {
+      // Combine multiple conditions
+      let combinedCondition = conditions[0]
+      for (let i = 1; i < conditions.length; i++) {
+        combinedCondition = and(combinedCondition, conditions[i])
+      }
+      queryBuilder = (queryBuilder as any).where(combinedCondition)
+    }
+  }
+
+  // Execute the query with group by and order by
+  const results = await queryBuilder
+    .groupBy(products.id)
+    .orderBy(desc(products.created_at))
+
+  return results
+}
+
 export async function createNewProduct(data: CreateProductInput) {
-  // Create a proper DB-compatible object
   const dbData: DbCreateProductInput = {
     name: data.name,
     description: data.description,
@@ -123,6 +189,8 @@ export async function createNewProduct(data: CreateProductInput) {
     features: data.features,
     origin: data.origin,
     instructions: data.instructions,
+    popular: data.popular,
+    rating: data.rating,
   }
 
   const newProduct = await db.insert(products).values(dbData).returning()

@@ -11,8 +11,13 @@ import {
   getPopularProducts,
   getRecommendedProducts,
   getSearchProducts,
+  getFilteredProducts,
 } from '../services/product.service'
-import { CreateProductInput, UpdateProductInput } from '../types/product.types'
+import {
+  CreateProductInput,
+  ProductFilters,
+  UpdateProductInput,
+} from '../types/product.types'
 
 export async function getRecommendedProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
@@ -139,6 +144,73 @@ export async function getSearchProductsFn(c: Context) {
 
   try {
     const products = await getSearchProducts(query)
+    return c.json({
+      success: true,
+      products,
+    })
+  } catch (error) {
+    console.error(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
+      },
+      500
+    )
+  }
+}
+
+export async function getFilteredProductsFn(c: Context) {
+  const filters = {
+    query: String(c.req.queries('query')),
+    categoryId: Number(c.req.queries('categoryId')),
+    minPrice: Number(c.req.queries('minPrice')),
+    maxPrice: Number(c.req.queries('maxPrice')),
+  }
+
+  if (!filters.query) {
+    return c.json(
+      {
+        success: false,
+        message: 'Search query is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const products = await getFilteredProducts(filters)
+
+    return c.json({
+      success: true,
+      products,
+    })
+  } catch (error) {
+    console.error(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
+      },
+      500
+    )
+  }
+
+  if (!filters.query) {
+    return c.json(
+      {
+        success: false,
+        message: 'Search query is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const products = await getFilteredProducts(filters)
+
     return c.json({
       success: true,
       products,

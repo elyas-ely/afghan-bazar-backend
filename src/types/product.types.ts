@@ -2,10 +2,6 @@ import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import { products, updateProductSchema } from '../schema/product.schema'
 import { z } from 'zod'
 
-/**
- * Product Types
- */
-
 // Product entity and input types
 export type Product = InferSelectModel<typeof products>
 
@@ -60,6 +56,13 @@ export type DbUpdateProductInput = {
   instructions?: string
 }
 
+export type ProductFilters = {
+  query: string
+  categoryId?: number
+  minPrice?: number
+  maxPrice?: number
+}
+
 // Product service interface
 export interface ProductService {
   getAllProducts(): Promise<Product[]>
@@ -67,4 +70,5 @@ export interface ProductService {
   createProduct(data: CreateProductInput): Promise<Product>
   updateProduct(id: number, data: UpdateProductInput): Promise<Product | null>
   deleteProduct(id: number): Promise<Product | null>
+  getFilteredProducts(filters: ProductFilters): Promise<Product[]>
 }

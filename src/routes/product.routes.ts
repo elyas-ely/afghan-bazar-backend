@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import {
   createProduct,
   deleteProductFn,
+  getFilteredProductsFn,
   getPopularProductsFn,
   getProductByIdFn,
   getRecommendedProductsFn,
@@ -16,6 +17,7 @@ const router = new Hono()
 router.get('/', getRecommendedProductsFn)
 router.get('/popular', getPopularProductsFn)
 router.get('/search', getSearchProductsFn)
+router.get('/filtered', getFilteredProductsFn)
 router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)
 router.patch('/:id', updateProductFn)
