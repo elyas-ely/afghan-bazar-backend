@@ -134,7 +134,7 @@ export async function getFilteredProducts(filters: ProductFilters) {
 
   const conditions: SQL<unknown>[] = [ilike(products.name, `${query}%`)]
 
-  if (categoryId) {
+  if (categoryId !== undefined && categoryId !== 0) {
     conditions.push(eq(products.category_id, categoryId))
   }
 

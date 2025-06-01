@@ -179,9 +179,18 @@ export async function getFilteredProductsFn(c: Context) {
 
   const filters: ProductFilters = {
     query: String(query),
-    categoryId: categoryIdRaw ? Number(categoryIdRaw) : undefined,
-    minPrice: minPriceRaw ? Number(minPriceRaw) : undefined,
-    maxPrice: maxPriceRaw ? Number(maxPriceRaw) : undefined,
+    categoryId:
+      categoryIdRaw && !isNaN(Number(categoryIdRaw))
+        ? Number(categoryIdRaw)
+        : 0,
+    minPrice:
+      minPriceRaw && !isNaN(Number(minPriceRaw))
+        ? Number(minPriceRaw)
+        : undefined,
+    maxPrice:
+      maxPriceRaw && !isNaN(Number(maxPriceRaw))
+        ? Number(maxPriceRaw)
+        : undefined,
   }
 
   try {
