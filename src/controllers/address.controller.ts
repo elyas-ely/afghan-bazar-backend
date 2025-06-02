@@ -77,7 +77,13 @@ export async function createUserAddressFn(c: Context) {
   const userId = c.req.param('userId') as string
 
   if (!userId) {
-    return c.json({ error: 'User ID is required' }, 400)
+    return c.json(
+      {
+        success: 'false',
+        message: 'User ID is required',
+      },
+      400
+    )
   }
 
   try {
@@ -102,10 +108,14 @@ export async function updateUserAddressFn(c: Context) {
   const userId = c.req.param('userId') as string
 
   if (!addressId || !userId) {
-    return c.json({ error: 'Invalid address ID or user ID' }, 400)
+    return c.json(
+      {
+        success: 'false',
+        message: 'Address ID or User ID is required',
+      },
+      400
+    )
   }
-
-  console.log(userId)
 
   try {
     const body = await c.req.json()
@@ -113,12 +123,24 @@ export async function updateUserAddressFn(c: Context) {
     const validatedData = updateUserAddressSchema.parse(body)
 
     if (Object.keys(validatedData).length === 0) {
-      return c.json({ error: 'No valid fields to update provided' }, 400)
+      return c.json(
+        {
+          success: 'false',
+          message: 'No valid fields to update provided',
+        },
+        400
+      )
     }
     const address = await updateUserAddress(addressId, userId, validatedData)
 
     if (!address) {
-      return c.json({ error: 'Address not found or not authorized' }, 404)
+      return c.json(
+        {
+          success: 'false',
+          message: 'Address not found or not authorized',
+        },
+        404
+      )
     }
 
     return c.json({ address }, 200)
@@ -133,14 +155,26 @@ export async function deleteUserAddressFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
 
   if (!addressId || !userId) {
-    return c.json({ error: 'Invalid address ID or user ID' }, 400)
+    return c.json(
+      {
+        success: 'false',
+        message: 'Address ID or User ID is required',
+      },
+      400
+    )
   }
 
   try {
     const address = await deleteUserAddress(addressId, userId)
 
     if (!address) {
-      return c.json({ error: 'Address not found or not authorized' }, 404)
+      return c.json(
+        {
+          success: 'false',
+          message: 'Address not found or not authorized',
+        },
+        404
+      )
     }
 
     return c.json({ address }, 200)
