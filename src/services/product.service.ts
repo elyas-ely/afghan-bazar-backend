@@ -128,7 +128,7 @@ export async function getProductById(id: number) {
   return product[0]
 }
 
-export async function getSearchProducts(query: string) {
+export async function getSearchProducts(query: string, limit: number) {
   const allProducts = await db
     .select({
       id: products.id,
@@ -137,7 +137,8 @@ export async function getSearchProducts(query: string) {
     .from(products)
     .where(ilike(products.name, `${query}%`))
     .groupBy(products.id)
-    .orderBy(desc(products.name))
+    .orderBy(asc(products.name))
+    .limit(limit)
 
   return allProducts
 }

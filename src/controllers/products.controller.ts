@@ -138,6 +138,7 @@ export async function getProductByIdFn(c: Context) {
 
 export async function getSearchProductsFn(c: Context) {
   const query = String(c.req.queries('query'))
+  const limit = 6
 
   if (!query) {
     return c.json(
@@ -150,7 +151,7 @@ export async function getSearchProductsFn(c: Context) {
   }
 
   try {
-    const products = await getSearchProducts(query)
+    const products = await getSearchProducts(query, limit)
     return c.json({
       success: true,
       products,
