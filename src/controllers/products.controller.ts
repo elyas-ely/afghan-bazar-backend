@@ -174,19 +174,25 @@ export async function getFilteredProductsFn(c: Context) {
   const categoryIdRaw = c.req.queries('categoryId')
   const minPriceRaw = c.req.queries('minPrice')
   const maxPriceRaw = c.req.queries('maxPrice')
+  const page = parseInt(String(c.req.queries('page'))) || 1
+  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
+  const userId = c.req.queries('userId')
 
-  if (!query) {
+  if (!userId) {
     return c.json(
       {
         success: false,
-        message: 'Search query is required',
+        message: 'User ID is required',
       },
       400
     )
   }
 
+  // Calculate offset from page and pageSize
+  const offset = (page - 1) * pageSize
+
   const filters: ProductFilters = {
-    query: String(query),
+    query: query ? String(query) : '',
     categoryId:
       categoryIdRaw && !isNaN(Number(categoryIdRaw))
         ? Number(categoryIdRaw)
@@ -199,14 +205,17 @@ export async function getFilteredProductsFn(c: Context) {
       maxPriceRaw && !isNaN(Number(maxPriceRaw))
         ? Number(maxPriceRaw)
         : undefined,
+    offset,
+    limit: pageSize,
   }
 
   try {
-    const products = await getFilteredProducts(filters)
+    const result = await getFilteredProducts(filters)
 
     return c.json({
       success: true,
-      products,
+      products: result.items,
+      hasNextPage: result.hasNextPage,
     })
   } catch (error) {
     console.error(error)

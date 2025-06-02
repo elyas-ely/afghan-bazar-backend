@@ -144,27 +144,21 @@ export async function getSearchProducts(query: string, limit: number) {
 }
 
 export async function getFilteredProducts(filters: ProductFilters) {
-  const { query, categoryId, minPrice, maxPrice } = filters
+  const {
+    query: searchQuery,
+    categoryId,
+    minPrice,
+    maxPrice,
+    offset,
+    limit,
+  } = filters
 
-  let queryBuilder: any = db
-    .select({
-      id: products.id,
-      name: products.name,
-      description: products.description,
-      price: products.price,
-      price_unit: products.price_unit,
-      images: products.images,
-      weights: products.weights,
-      features: products.features,
-      origin: products.origin,
-      popular: products.popular,
-      instructions: products.instructions,
-      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-    })
-    .from(products)
-    .leftJoin(reviews, eq(reviews.product_id, products.id))
+  const conditions: SQL<unknown>[] = []
 
-  const conditions: SQL<unknown>[] = [ilike(products.name, `${query}%`)]
+  // Only add name condition if searchQuery is provided
+  if (searchQuery && searchQuery.trim() !== '') {
+    conditions.push(ilike(products.name, `${searchQuery}%`))
+  }
 
   if (categoryId !== undefined && categoryId !== 0) {
     conditions.push(eq(products.category_id, categoryId))
@@ -182,15 +176,56 @@ export async function getFilteredProducts(filters: ProductFilters) {
     )
   }
 
+  // Get total count first
+  const countQuery = db
+    .select({ count: sql<number>`COUNT(DISTINCT ${products.id})` })
+    .from(products)
+
   if (conditions.length > 0) {
-    queryBuilder = queryBuilder.where(and(...conditions))
+    countQuery.where(and(...conditions) as any)
   }
 
-  const results = await queryBuilder
+  const totalCount = await countQuery.execute()
+  const total = totalCount[0]?.count || 0
+
+  // Build the main query
+  const query = db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      popular: products.popular,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+    })
+    .from(products)
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(asc(products.name), desc(products.created_at))
+    .limit(limit)
+    .offset(offset)
 
-  return results
+  // Handle conditions with type assertion to satisfy TypeScript
+  if (conditions.length > 0) {
+    // Use the 'as any' workaround when calling the where method
+    ;(query as any).where(and(...conditions))
+  }
+
+  const results = await query.execute()
+
+  // Check if there are more items available after the current page
+  const hasNextPage = offset + limit < total
+
+  return {
+    items: results,
+    hasNextPage,
+  }
 }
 
 export async function getViewedProducts(userId: string) {

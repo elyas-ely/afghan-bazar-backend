@@ -61,6 +61,8 @@ export type ProductFilters = {
   categoryId?: number
   minPrice?: number
   maxPrice?: number
+  offset: number
+  limit: number
 }
 
 // Product service interface
