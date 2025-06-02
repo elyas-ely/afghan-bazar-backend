@@ -12,20 +12,26 @@ CREATE TABLE If NOT EXISTS users (
 CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_created_at ON users (created_at);
 
-CREATE TABLE If NOT EXISTS user_addresses (
+
+CREATE TABLE IF NOT EXISTS addresses (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL, 
-    address1 VARCHAR(255) NOT NULL,
-    address2 VARCHAR(255),
-    zipcode VARCHAR(20) NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    address_name VARCHAR(100) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    street_address TEXT NOT NULL,
+    apartment VARCHAR(50),
+    city VARCHAR(100) NOT NULL,
+    province VARCHAR(100) NOT NULL,
+    state VARCHAR(100),
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) 
-        ON DELETE CASCADE 
-        ON UPDATE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_user_addresses_user_id ON user_addresses (user_id);
-CREATE INDEX idx_user_addresses_zipcode ON user_addresses (zipcode);
+CREATE INDEX idx_addresses_user_id ON addresses(user_id);
 
 CREATE TABLE If NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
@@ -70,11 +76,17 @@ CREATE TABLE IF NOT EXISTS reviews (
     UNIQUE (user_id, product_id)
 );
 
-
-
-
 CREATE INDEX idx_reviews_product_id ON reviews(product_id);
 CREATE INDEX idx_reviews_user_id ON reviews(user_id);
 CREATE INDEX idx_reviews_created_at ON reviews(created_at DESC);
 
 
+CREATE TABLE IF NOT EXISTS viewed_products (
+	id SERIAL NOT NULL,
+	user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	product_id INTEGER NOT NULL REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (user_id, product_id)
+);
+
+CREATE INDEX idx_viewed_products_product_id_user_id ON viewed_products(product_id, user_id);

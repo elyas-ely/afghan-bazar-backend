@@ -12,6 +12,7 @@ import {
   getRecommendedProducts,
   getSearchProducts,
   getFilteredProducts,
+  getViewedProducts,
 } from '../services/product.service'
 import {
   CreateProductInput,
@@ -21,31 +22,37 @@ import {
 
 export async function getRecommendedProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
+  const userId = String(c.req.queries('userId'))
+  const page = parseInt(String(c.req.queries('page'))) || 1
+  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
+  const offset = (page - 1) * pageSize
 
-  if (isNaN(categoryId)) {
+  if (isNaN(categoryId) || !userId) {
     return c.json(
       {
         success: false,
-        message: 'Category ID is required and must be a number',
-        code: 'CATEGORY_ID_INVALID',
+        message: 'Category ID and User ID are required',
+        code: 'INVALID_PARAMETERS',
       },
       400
     )
   }
 
   try {
-    const products = await getRecommendedProducts(categoryId)
+    const result = await getRecommendedProducts(categoryId, offset, pageSize)
+
     return c.json({
       success: true,
-      products,
+      products: result.items,
+      hasNextPage: result.hasNextPage,
     })
   } catch (error) {
-    console.error(error)
+    console.error(`Error getting recommended products:`, error)
     return c.json(
       {
         success: false,
-        message: 'Internal Server Error',
-        code: 'INTERNAL_ERROR',
+        message: 'Failed to get recommended products',
+        error: (error as Error).message,
       },
       500
     )
@@ -195,6 +202,39 @@ export async function getFilteredProductsFn(c: Context) {
 
   try {
     const products = await getFilteredProducts(filters)
+
+    return c.json({
+      success: true,
+      products,
+    })
+  } catch (error) {
+    console.error(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+        code: 'INTERNAL_ERROR',
+      },
+      500
+    )
+  }
+}
+
+export async function getViewedProductsFn(c: Context) {
+  const userId = String(c.req.queries('userId'))
+
+  if (!userId) {
+    return c.json(
+      {
+        success: false,
+        message: 'User ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const products = await getViewedProducts(userId)
 
     return c.json({
       success: true,

@@ -15,12 +15,21 @@ export async function getUserAddressesFn(c: Context) {
   const userId = c.req.param('userId')
 
   if (!userId) {
-    return c.json({ error: 'User ID is required' }, 400)
+    return c.json(
+      {
+        success: 'false',
+        message: 'User ID is required',
+      },
+      400
+    )
   }
 
   try {
     const addresses = await getUserAddresses(userId)
-    return c.json(addresses)
+    return c.json({
+      success: 'true',
+      addresses,
+    })
   } catch (error) {
     console.error(error)
     return c.json({ error: 'Internal Server Error' }, 500)
@@ -32,17 +41,32 @@ export async function getUserAddressByIdFn(c: Context) {
   const userId = c.req.param('userId')
 
   if (!addressId || !userId) {
-    return c.json({ error: 'Invalid address ID or user ID' }, 400)
+    return c.json(
+      {
+        success: 'false',
+        message: 'Address ID or User ID is required',
+      },
+      400
+    )
   }
 
   try {
     const address = await getUserAddressById(addressId, userId)
 
     if (!address) {
-      return c.json({ error: 'Address not found' }, 404)
+      return c.json(
+        {
+          success: 'false',
+          message: 'Address not found',
+        },
+        404
+      )
     }
 
-    return c.json(address)
+    return c.json({
+      success: 'true',
+      address,
+    })
   } catch (error) {
     console.error(error)
     return c.json({ error: 'Internal Server Error' }, 500)

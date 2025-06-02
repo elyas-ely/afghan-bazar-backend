@@ -1,29 +1,29 @@
 import { db } from '../config/database'
 import { and, desc, eq } from 'drizzle-orm'
-import { user_addresses } from '../schema/address.schema'
-import { CreateUserAddressInput, UpdateUserAddressInput } from '../types/address.types'
-
+import { addresses } from '../schema/address.schema'
+import {
+  CreateUserAddressInput,
+  UpdateUserAddressInput,
+} from '../types/address.types'
 
 // =========================
 // ====== GET ADDRESS  =====
 // =========================
 export async function getUserAddresses(userId: string) {
-  const addresses = await db
+  const data = await db
     .select()
-    .from(user_addresses)
-    .where(eq(user_addresses.user_id, userId))
-    .orderBy(desc(user_addresses.created_at))
-  return addresses
+    .from(addresses)
+    .where(eq(addresses.user_id, userId))
+    .orderBy(desc(addresses.created_at))
+  return data
 }
 
 export async function getUserAddressById(addressId: number, userId: string) {
-  const address = await db
+  const data = await db
     .select()
-    .from(user_addresses)
-    .where(
-      and(eq(user_addresses.id, addressId), eq(user_addresses.user_id, userId))
-    )
-  return address[0]
+    .from(addresses)
+    .where(and(eq(addresses.id, addressId), eq(addresses.user_id, userId)))
+  return data[0]
 }
 //
 //

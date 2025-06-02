@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq, sql, and, ilike, SQL, asc, asc } from 'drizzle-orm'
+import { desc, eq, sql, and, ilike, SQL, asc } from 'drizzle-orm'
 import { products } from '../schema/product.schema'
 import {
   UpdateProductInput,
@@ -9,8 +9,33 @@ import {
   ProductFilters,
 } from '../types/product.types'
 import { reviews } from '../schema/review.schema'
+import { viewed_products } from '../schema/viewed-products.schema'
 
-export async function getRecommendedProducts(categoryId: number) {
+export async function getRecommendedProducts(
+  categoryId: number,
+  offset: number,
+  limit: number
+) {
+  // Build conditions array for both queries
+  const conditions: SQL<unknown>[] = []
+
+  if (categoryId !== 0) {
+    conditions.push(eq(products.category_id, categoryId))
+  }
+
+  // Get total count first
+  const countQuery = db
+    .select({ count: sql<number>`COUNT(DISTINCT ${products.id})` })
+    .from(products)
+
+  if (conditions.length > 0) {
+    countQuery.where(and(...conditions) as any)
+  }
+
+  const totalCount = await countQuery.execute()
+  const total = totalCount[0]?.count || 0
+
+  // Get paginated results
   const query = db
     .select({
       id: products.id,
@@ -19,10 +44,10 @@ export async function getRecommendedProducts(categoryId: number) {
       price: products.price,
       price_unit: products.price_unit,
       images: products.images,
-      popular: products.popular,
       weights: products.weights,
       features: products.features,
       origin: products.origin,
+      popular: products.popular,
       instructions: products.instructions,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
     })
@@ -30,14 +55,21 @@ export async function getRecommendedProducts(categoryId: number) {
     .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
+    .limit(limit)
+    .offset(offset)
 
-  // Only apply the category filter if categoryId is not 0
-  if (categoryId !== 0) {
-    query.where(eq(products.category_id, categoryId))
+  if (conditions.length > 0) {
+    query.where(and(...conditions) as any)
   }
 
-  const allProducts = await query
-  return allProducts
+  const result = await query.execute()
+  // Check if there are more items available after the current page
+  const hasNextPage = offset + limit < total
+
+  return {
+    items: result,
+    hasNextPage,
+  }
 }
 
 export async function getPopularProducts(categoryId: number) {
@@ -61,7 +93,6 @@ export async function getPopularProducts(categoryId: number) {
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
 
-  // Build conditional where clause
   if (categoryId !== 0) {
     baseQuery.where(
       and(eq(products.category_id, categoryId), eq(products.popular, true))
@@ -70,7 +101,7 @@ export async function getPopularProducts(categoryId: number) {
     baseQuery.where(eq(products.popular, true))
   }
 
-  const allProducts = await baseQuery
+  const allProducts = await baseQuery.execute()
   return allProducts
 }
 
@@ -161,6 +192,37 @@ export async function getFilteredProducts(filters: ProductFilters) {
   return results
 }
 
+export async function getViewedProducts(userId: string) {
+  const viewedProducts = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      popular: products.popular,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+    })
+    .from(viewed_products)
+    .innerJoin(products, eq(viewed_products.product_id, products.id))
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .where(eq(viewed_products.user_id, userId))
+    .groupBy(products.id, viewed_products.created_at)
+    .orderBy(desc(viewed_products.created_at))
+
+  return viewedProducts
+}
+
+//
+//
+//
+//
+//
 export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {
     name: data.name,

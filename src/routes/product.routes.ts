@@ -8,6 +8,7 @@ import {
   getRecommendedProductsFn,
   getSearchProductsFn,
   updateProductFn,
+  getViewedProductsFn,
 } from '../controllers/products.controller'
 import reviewRouter from './reviews.routes'
 
@@ -18,6 +19,7 @@ router.get('/', getRecommendedProductsFn)
 router.get('/popular', getPopularProductsFn)
 router.get('/search', getSearchProductsFn)
 router.get('/filtered', getFilteredProductsFn)
+router.get('/viewed', getViewedProductsFn)
 router.get('/:id', getProductByIdFn)
 router.post('/', createProduct)
 router.patch('/:id', updateProductFn)
