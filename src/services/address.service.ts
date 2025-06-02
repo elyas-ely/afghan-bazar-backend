@@ -34,7 +34,7 @@ export async function getUserAddressById(addressId: number, userId: string) {
 // ====== POST ADDRESS  ====
 // =========================
 export async function createUserAddress(data: CreateUserAddressInput) {
-  const newAddress = await db.insert(user_addresses).values(data).returning()
+  const newAddress = await db.insert(addresses).values(data).returning()
   return newAddress[0]
 }
 //
@@ -51,11 +51,9 @@ export async function updateUserAddress(
   data: UpdateUserAddressInput
 ) {
   const address = await db
-    .update(user_addresses)
+    .update(addresses)
     .set(data)
-    .where(
-      and(eq(user_addresses.id, addressId), eq(user_addresses.user_id, userId))
-    )
+    .where(and(eq(addresses.id, addressId), eq(addresses.user_id, userId)))
     .returning()
   return address[0]
 }
@@ -69,10 +67,8 @@ export async function updateUserAddress(
 // =========================
 export async function deleteUserAddress(addressId: number, userId: string) {
   const address = await db
-    .delete(user_addresses)
-    .where(
-      and(eq(user_addresses.id, addressId), eq(user_addresses.user_id, userId))
-    )
+    .delete(addresses)
+    .where(and(eq(addresses.id, addressId), eq(addresses.user_id, userId)))
     .returning()
   return address[0]
 }

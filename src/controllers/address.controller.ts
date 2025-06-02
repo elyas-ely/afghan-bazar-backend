@@ -82,9 +82,12 @@ export async function createUserAddressFn(c: Context) {
 
   try {
     const body = await c.req.json()
-    console.log(userId)
+    const data = {
+      ...body,
+      user_id: userId,
+    }
 
-    const validatedData = createUserAddressSchema.parse(body)
+    const validatedData = createUserAddressSchema.parse(data)
 
     const newAddress = await createUserAddress(validatedData)
     return c.json({ address: newAddress }, 201)
