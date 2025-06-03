@@ -13,4 +13,4 @@ psql -U postgres -d myapp -f src/migrations/001_update_array_columns.sql
 - 7. orders
 - 8. images with reviews
 - 9. Neon setup
-- 10. Vercel deploy
+- ~~10. Vercel deploy~~ ✅
