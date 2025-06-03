@@ -4,11 +4,12 @@
   "installCommand": "curl -fsSL https://bun.sh/install | bash && ~/.bun/bin/bun install",
   "outputDirectory": ".",
   "framework": null,
-  "functions": {
-    "src/index.ts": {
-      "runtime": "nodejs18.x"
+  "builds": [
+    {
+      "src": "src/index.ts",
+      "use": "@vercel/node@2.15.3"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
