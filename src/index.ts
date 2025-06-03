@@ -21,7 +21,7 @@ if (env.NODE_ENV === 'development') {
   console.log(`Server is running on port ${env.PORT}`)
 }
 
-// Export for Vercel serverless environment
-export default {
-  fetch: app.fetch,
+// For Vercel - export a fetch function directly
+export default function(req: Request) {
+  return app.fetch(req)
 }
