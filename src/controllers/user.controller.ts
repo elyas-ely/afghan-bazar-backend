@@ -65,7 +65,7 @@ export async function updateUserFn(c: Context) {
   const userId = c.req.param('userId')
 
   if (!userId) {
-    return c.json({ error: 'User ID is required' }, 400)
+    return c.json({ success: 'false', message: 'User ID is required' }, 400)
   }
 
   try {
@@ -73,7 +73,10 @@ export async function updateUserFn(c: Context) {
     const validatedData = updateUserSchema.parse(body)
 
     if (Object.keys(validatedData).length === 0) {
-      return c.json({ error: 'No valid fields to update provided' }, 400)
+      return c.json(
+        { success: 'false', message: 'No valid fields to update provided' },
+        400
+      )
     }
 
     const updatedUser = await updateUser(userId, validatedData)
@@ -81,11 +84,11 @@ export async function updateUserFn(c: Context) {
     return c.json({ user: updatedUser })
   } catch (error: any) {
     if (error.name === 'ZodError') {
-      return c.json({ error: error.errors }, 400)
+      return c.json({ success: 'false', error: error.errors }, 400)
     }
 
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json({ success: 'false', error: 'Internal Server Error' }, 500)
   }
 }
 
