@@ -86,10 +86,10 @@ export async function createProductReview(c: Context) {
     const validatedData = createReviewSchema.parse(body)
 
     // Insert into database
-    const newReview = await db.insert(reviews).values(validatedData).returning()
+    // const newReview = await db.insert(reviews).values(validatedData).returning()
 
     return c.json(
-      { message: 'Review created successfully', review: newReview[0] },
+      { message: 'Review created successfully', review: 'hhj' },
       201
     )
   } catch (error) {
@@ -141,15 +141,15 @@ export async function updateProductReview(c: Context) {
     }
 
     // If user_id is provided, verify that the review belongs to this user
-    if (
-      validatedData.user_id &&
-      existingReview[0].user_id !== validatedData.user_id
-    ) {
-      return c.json(
-        { error: 'You are not authorized to update this review' },
-        403
-      )
-    }
+    // if (
+    //   validatedData.user_id &&
+    //   existingReview[0].user_id !== validatedData.user_id
+    // ) {
+    //   return c.json(
+    //     { error: 'You are not authorized to update this review' },
+    //     403
+    //   )
+    // }
 
     // Prepare update data (excluding user_id from updates)
     const updateData: { rating?: string; comment?: string; updated_at: Date } =

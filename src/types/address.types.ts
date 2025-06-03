@@ -1,5 +1,5 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { user_addresses, updateUserAddressSchema } from '../schema/address.schema'
+import { addresses, updateUserAddressSchema, createUserAddressSchema } from '../schema/address.schema'
 import { z } from 'zod'
 
 /**
@@ -7,8 +7,8 @@ import { z } from 'zod'
  */
 
 // Address entity and input types
-export type UserAddress = InferSelectModel<typeof user_addresses>
-export type CreateUserAddressInput = InferInsertModel<typeof user_addresses>
+export type UserAddress = InferSelectModel<typeof addresses>
+export type CreateUserAddressInput = InferInsertModel<typeof addresses>
 export type UpdateUserAddressInput = z.infer<typeof updateUserAddressSchema>
 
 // Address service interface
