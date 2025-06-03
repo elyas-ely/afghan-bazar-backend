@@ -270,12 +270,12 @@ export async function getViewedProductsFn(c: Context) {
 
 export async function createProduct(c: Context) {
   try {
-    const body = await c.req.json()
+    // const body = await c.req.json()
 
-    const validatedData: CreateProductInput = createProductSchema.parse(body)
+    // const validatedData: CreateProductInput = createProductSchema.parse(body)
 
-    const newProduct = await createNewProduct(validatedData)
-    return c.json({ product: newProduct }, 201)
+    // const newProduct = await createNewProduct(validatedData)
+    return c.json({ product: 'product created' }, 201)
   } catch (error) {
     console.error(error)
     return c.json(
