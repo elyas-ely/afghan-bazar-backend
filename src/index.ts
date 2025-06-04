@@ -16,4 +16,3 @@ v1.route('/products', productRoutes)
 app.route('/api', v1)
 
 export default app
-export const handler = app.fetch
