@@ -1,27 +1,8 @@
-import {
-  pgTable,
-  varchar,
-  timestamp,
-  serial,
-  numeric,
-  text,
-  jsonb,
-  integer,
-} from 'drizzle-orm/pg-core'
-
 import { z } from 'zod'
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
+import { reviews } from '../db/schema/reviews'
 
 // Database table definition
-export const reviews = pgTable('reviews', {
-  id: serial('id').primaryKey(),
-  product_id: integer('product_id').notNull(),
-  user_id: varchar('user_id', { length: 255 }).notNull(),
-  rating: numeric('rating').notNull(),
-  comment: text('comment').notNull(),
-  created_at: timestamp('created_at').defaultNow(),
-  updated_at: timestamp('updated_at').defaultNow(),
-})
 
 // TypeScript types
 export type Review = InferSelectModel<typeof reviews>
@@ -32,6 +13,7 @@ export const createReviewSchema = z.object({
   user_id: z.string().min(1, 'User ID is required'),
   product_id: z.number().min(1, 'Product ID is required'),
   rating: z.number().min(1).max(5, 'Rating must be between 1 and 5'),
+  images: z.array(z.string().url()).min(1),
   comment: z.string().min(1, 'Comment is required'),
 })
 
@@ -46,6 +28,7 @@ export const updateReviewSchema = z
       .min(1)
       .max(5, 'Rating must be between 1 and 5')
       .optional(),
+    images: z.array(z.string().url()).min(1).optional(),
     comment: z.string().min(1, 'Comment is required').optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {

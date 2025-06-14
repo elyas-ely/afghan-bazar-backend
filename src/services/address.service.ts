@@ -1,10 +1,11 @@
 import { db } from '../config/database'
 import { and, desc, eq } from 'drizzle-orm'
-import { addresses } from '../schema/address.schema'
+
 import {
   CreateUserAddressInput,
   UpdateUserAddressInput,
 } from '../types/address.types'
+import { addresses } from '../db/schema/addresses'
 
 // =========================
 // ====== GET ADDRESS  =====

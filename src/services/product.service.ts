@@ -1,6 +1,6 @@
 import { db } from '../config/database'
 import { desc, eq, sql, and, ilike, SQL, asc } from 'drizzle-orm'
-import { products } from '../schema/product.schema'
+
 import {
   UpdateProductInput,
   CreateProductInput,
@@ -8,8 +8,9 @@ import {
   DbUpdateProductInput,
   ProductFilters,
 } from '../types/product.types'
-import { reviews } from '../schema/review.schema'
-import { viewed_products } from '../schema/viewed-products.schema'
+import { products } from '../db/schema/products'
+import { reviews } from '../db/schema/reviews'
+import { viewed_products } from '../db/schema/viewedProducts'
 
 export async function getRecommendedProducts(
   categoryId: number,

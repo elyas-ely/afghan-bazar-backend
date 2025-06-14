@@ -1,6 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { updateUserSchema, users } from '../schema/user.schema'
+import { updateUserSchema } from '../schema/user.schema'
 import { z } from 'zod'
+import { users } from '../db/schema/users'
 
 /**
  * User Types

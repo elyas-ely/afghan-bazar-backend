@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { Review } from '../schema/review.schema'
 
 // Basic review data without relations
@@ -43,7 +42,7 @@ export interface ReviewFilterParams {
   limit?: number
   offset?: number
   sortBy?: 'rating' | 'created_at'
-  sortOrder?: 'asc' | 'desc' 
+  sortOrder?: 'asc' | 'desc'
 }
 
 // Response for review operations

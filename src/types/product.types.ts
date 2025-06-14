@@ -1,6 +1,7 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm'
-import { products, updateProductSchema } from '../schema/product.schema'
+import { updateProductSchema } from '../schema/product.schema'
 import { z } from 'zod'
+import { products } from '../db/schema/products'
 
 // Product entity and input types
 export type Product = InferSelectModel<typeof products>

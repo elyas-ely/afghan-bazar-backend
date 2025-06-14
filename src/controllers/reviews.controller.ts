@@ -1,10 +1,10 @@
 import { Context } from 'hono'
 import {
-  reviews,
   createReviewSchema,
   updateReviewSchema,
 } from '../schema/review.schema'
-import { users } from '../schema/user.schema'
+import { reviews } from '../db/schema/reviews'
+import { users } from '../db/schema/users'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { db } from '../config/database'
 import { z } from 'zod'
