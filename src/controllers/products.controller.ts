@@ -61,6 +61,7 @@ export async function getRecommendedProductsFn(c: Context) {
 
 export async function getPopularProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
+  const limit = 10
 
   if (isNaN(categoryId)) {
     return c.json(
@@ -74,7 +75,7 @@ export async function getPopularProductsFn(c: Context) {
   }
 
   try {
-    const products = await getPopularProducts(categoryId)
+    const products = await getPopularProducts(categoryId, limit)
     return c.json({
       success: true,
       products,
@@ -284,6 +285,43 @@ export async function createProduct(c: Context) {
         message: 'Invalid product data',
       },
       400
+    )
+  }
+}
+
+export async function updateViewedProductFn(c: Context) {
+  const productId = Number(c.req.param('id'))
+  const userId = String(c.req.queries('userId'))
+
+  if (!productId || !userId) {
+    return c.json(
+      {
+        success: false,
+        message: 'Valid product or user ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const updatedProduct = await updateViewedProduct(productId, userId)
+
+    return c.json(
+      {
+        success: true,
+        message: 'Product updated successfully',
+        product: updatedProduct,
+      },
+      200
+    )
+  } catch (error: any) {
+    console.log(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
     )
   }
 }

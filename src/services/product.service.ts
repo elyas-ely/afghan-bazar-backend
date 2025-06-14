@@ -72,7 +72,7 @@ export async function getRecommendedProducts(
   }
 }
 
-export async function getPopularProducts(categoryId: number) {
+export async function getPopularProducts(categoryId: number, limit: number) {
   const baseQuery = db
     .select({
       id: products.id,
@@ -92,6 +92,7 @@ export async function getPopularProducts(categoryId: number) {
     .leftJoin(reviews, eq(reviews.product_id, products.id))
     .groupBy(products.id)
     .orderBy(desc(products.created_at))
+    .limit(limit)
 
   if (categoryId !== 0) {
     baseQuery.where(
@@ -259,6 +260,18 @@ export async function getViewedProducts(userId: string) {
 //
 //
 //
+
+export async function updateViewedProduct(productId: number, userId: string) {
+  const updatedProduct = await db
+    .insert(viewed_products)
+    .values({
+      product_id: productId,
+      user_id: userId,
+    })
+    .returning()
+
+  return updatedProduct[0]
+}
 export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {
     name: data.name,
