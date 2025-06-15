@@ -18,7 +18,7 @@ CREATE TABLE "addresses" (
 --> statement-breakpoint
 CREATE TABLE "categories" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" varchar(255) NOT NULL,
+	"name" varchar(250) NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
@@ -30,7 +30,7 @@ CREATE TABLE "products" (
 	"price" numeric(10, 2) NOT NULL,
 	"popular" boolean DEFAULT false,
 	"price_unit" varchar(50),
-	"weights" varchar(10)[],
+	"weights" integer[],
 	"features" text[],
 	"origin" varchar(100),
 	"instructions" text,

@@ -1,13 +1,11 @@
 import { Context } from 'hono'
-import {
-  createReviewSchema,
-  updateReviewSchema,
-} from '../schema/review.schema'
+import { createReviewSchema, updateReviewSchema } from '../schema/review.schema'
 import { reviews } from '../db/schema/reviews'
 import { users } from '../db/schema/users'
-import { and, desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { db } from '../config/database'
 import { z } from 'zod'
+import { getProductReviews } from '../services/review.service'
 
 export async function getProductReview(c: Context) {
   const productId = Number(c.req.param('id'))
@@ -17,28 +15,7 @@ export async function getProductReview(c: Context) {
   }
 
   try {
-    const data = await db
-      .select({
-        id: reviews.id,
-        rating: reviews.rating,
-        userName: users.username,
-        profile: users.profile,
-        country: users.country,
-        comment: reviews.comment,
-        createdAt: reviews.created_at,
-      })
-      .from(reviews)
-      .where(eq(reviews.product_id, productId))
-      .innerJoin(users, eq(reviews.user_id, users.id))
-      .orderBy(desc(reviews.created_at))
-      .limit(10)
-      .offset(0)
-
-    const [{ count }] = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(reviews)
-      .where(eq(reviews.product_id, productId))
-
+    const { data, count } = await getProductReviews(productId)
     return c.json({ data, count })
   } catch (error) {
     console.log(error)

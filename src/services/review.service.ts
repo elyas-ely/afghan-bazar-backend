@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { reviews } from '../db/schema/reviews'
 import { users } from '../db/schema/users'
 import { products } from '../db/schema/products'
@@ -18,10 +18,16 @@ export async function getProductReviews(productId: number) {
     })
     .from(reviews)
     .where(eq(reviews.product_id, productId))
-    .innerJoin(products, eq(reviews.product_id, products.id))
     .innerJoin(users, eq(reviews.user_id, users.id))
-    .groupBy(reviews.id, users.username, products.name, users.profile)
+    .innerJoin(products, eq(reviews.product_id, products.id))
     .orderBy(desc(reviews.created_at))
+    .limit(10)
+    .offset(0)
 
-  return data
+  const [{ count }] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(reviews)
+    .where(eq(reviews.product_id, productId))
+
+  return { data, count }
 }

@@ -1,5 +1,5 @@
 {
-  "id": "28e2a2c5-fa85-446b-b6d4-c9966c79bffd",
+  "id": "68b3e97d-6c2c-4746-9c68-1947c861676d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -155,7 +155,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "varchar(250)",
           "primaryKey": false,
           "notNull": true
         },
@@ -225,7 +225,7 @@
         },
         "weights": {
           "name": "weights",
-          "type": "varchar(10)[]",
+          "type": "integer[]",
           "primaryKey": false,
           "notNull": false
         },
