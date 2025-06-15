@@ -1,5 +1,5 @@
 {
-  "id": "afcfe810-e9fe-4fbd-ac59-e1bfec59dfe7",
+  "id": "43779ff7-b3fb-4b33-8e2f-4be06d097247",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -505,12 +505,6 @@
         "country": {
           "name": "country",
           "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "phone_number": {
-          "name": "phone_number",
-          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },

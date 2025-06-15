@@ -58,7 +58,6 @@ CREATE TABLE "users" (
 	"email" varchar(255) NOT NULL,
 	"profile" varchar,
 	"country" varchar,
-	"phone_number" varchar(20),
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")

@@ -9,6 +9,5 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   profile: varchar('profile'),
   country: varchar('country'),
-  phone_number: varchar('phone_number', { length: 20 }),
   ...timestamps,
 })
