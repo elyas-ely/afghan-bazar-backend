@@ -4,6 +4,6 @@ import { timestamps } from '../columns.helpers'
 // CATEGORIES TABLE
 export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
+  name: varchar('name', { length: 250 }).notNull(),
   ...timestamps,
 })
