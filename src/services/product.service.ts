@@ -11,11 +11,13 @@ import {
 import { products } from '../db/schema/products'
 import { reviews } from '../db/schema/reviews'
 import { viewed_products } from '../db/schema/viewedProducts'
+import { saves } from '../db/schema/saves'
 
 export async function getRecommendedProducts(
   categoryId: number,
   offset: number,
-  limit: number
+  limit: number,
+  userId: string
 ) {
   // Build conditions array for both queries
   const conditions: SQL<unknown>[] = []
@@ -50,12 +52,15 @@ export async function getRecommendedProducts(
       origin: products.origin,
       popular: products.popular,
       instructions: products.instructions,
-      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+      // rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+      // isSaved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
+      // createdAt: sql<Date>`MAX(${products.created_at})`,
     })
     .from(products)
-    .leftJoin(reviews, eq(reviews.product_id, products.id))
-    .groupBy(products.id)
-    .orderBy(desc(products.created_at))
+    // .leftJoin(reviews, eq(reviews.product_id, products.id))
+    // .leftJoin(saves, eq(saves.product_id, products.id))
+    // .groupBy(products.id)
+    .orderBy(desc(products.created_at)) // Order by the same expression used in select
     .limit(limit)
     .offset(offset)
 
@@ -73,7 +78,11 @@ export async function getRecommendedProducts(
   }
 }
 
-export async function getPopularProducts(categoryId: number, limit: number) {
+export async function getPopularProducts(
+  categoryId: number,
+  limit: number,
+  userId: string
+) {
   const baseQuery = db
     .select({
       id: products.id,
@@ -88,11 +97,15 @@ export async function getPopularProducts(categoryId: number, limit: number) {
       popular: products.popular,
       instructions: products.instructions,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+      isSaved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
+      created_at: sql<Date>`MAX(${products.created_at})`,
+      updated_at: sql<Date>`MAX(${products.updated_at})`,
     })
     .from(products)
     .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .leftJoin(saves, eq(saves.product_id, products.id))
     .groupBy(products.id)
-    .orderBy(desc(products.created_at))
+    .orderBy(desc(sql`MAX(${products.created_at})`))
     .limit(limit)
 
   if (categoryId !== 0) {

@@ -1,11 +1,7 @@
 import { Context } from 'hono'
-import {
-  createProductSchema,
-  updateProductSchema,
-} from '../schema/product.schema'
+import { updateProductSchema } from '../schema/product.schema'
 import {
   getProductById,
-  createNewProduct,
   updateProduct,
   deleteProduct,
   getPopularProducts,
@@ -14,11 +10,7 @@ import {
   getFilteredProducts,
   getViewedProducts,
 } from '../services/product.service'
-import {
-  CreateProductInput,
-  ProductFilters,
-  UpdateProductInput,
-} from '../types/product.types'
+import { ProductFilters, UpdateProductInput } from '../types/product.types'
 
 export async function getRecommendedProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
@@ -39,7 +31,12 @@ export async function getRecommendedProductsFn(c: Context) {
   }
 
   try {
-    const result = await getRecommendedProducts(categoryId, offset, pageSize)
+    const result = await getRecommendedProducts(
+      categoryId,
+      offset,
+      pageSize,
+      userId
+    )
 
     return c.json({
       success: true,
@@ -61,21 +58,24 @@ export async function getRecommendedProductsFn(c: Context) {
 
 export async function getPopularProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
+  const userId = String(c.req.queries('userId'))
   const limit = 10
 
-  if (isNaN(categoryId)) {
+  console.log(userId)
+
+  if (isNaN(categoryId) || !userId) {
     return c.json(
       {
         success: false,
-        message: 'Category ID is required and must be a number',
-        code: 'CATEGORY_ID_INVALID',
+        message: 'Category ID and User ID are required',
+        code: 'INVALID_PARAMETERS',
       },
       400
     )
   }
 
   try {
-    const products = await getPopularProducts(categoryId, limit)
+    const products = await getPopularProducts(categoryId, limit, userId)
     return c.json({
       success: true,
       products,

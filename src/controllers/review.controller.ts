@@ -84,8 +84,6 @@ export async function createProductReviewFn(c: Context) {
 
   const validatedData = createReviewSchema.parse(body)
 
-  console.log(validatedData)
-
   try {
     // Insert into database
     await db.insert(reviews).values(validatedData).returning()
