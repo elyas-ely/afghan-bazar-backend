@@ -1,5 +1,3 @@
-import { boolean } from 'drizzle-orm/pg-core'
-import { pgTable, serial, varchar, timestamp } from 'drizzle-orm/pg-core'
 import { z } from 'zod'
 
 export const createUserAddressSchema = z.object({
@@ -7,7 +5,7 @@ export const createUserAddressSchema = z.object({
   address_name: z.string(),
   full_name: z.string(),
   street_address: z.string(),
-  apartment: z.string(),
+  apartment: z.string().optional(),
   city: z.string(),
   province: z.string(),
   zip_code: z.string(),

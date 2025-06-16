@@ -10,9 +10,8 @@ psql -U postgres -d myapp -f src/migrations/001_update_array_columns.sql
 - 4. get saveStatus with product
 - 5. get wishlist products
 - 6. orders
-- 7. images with reviews
+- 7. see all and limit reviews
 
 <!-- -------------- -->
 
-- 1.  - images to reviews
-      -
+- 1.  - get total reviews
