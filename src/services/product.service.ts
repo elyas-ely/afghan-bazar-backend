@@ -52,15 +52,16 @@ export async function getRecommendedProducts(
       origin: products.origin,
       popular: products.popular,
       instructions: products.instructions,
-      // rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-      // isSaved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
-      // createdAt: sql<Date>`MAX(${products.created_at})`,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+      is_saved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
+      created_at: products.created_at,
+      updated_at: products.updated_at,
     })
     .from(products)
-    // .leftJoin(reviews, eq(reviews.product_id, products.id))
-    // .leftJoin(saves, eq(saves.product_id, products.id))
-    // .groupBy(products.id)
-    .orderBy(desc(products.created_at)) // Order by the same expression used in select
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .leftJoin(saves, eq(saves.product_id, products.id))
+    .groupBy(products.id)
+    .orderBy(desc(products.created_at))
     .limit(limit)
     .offset(offset)
 
@@ -97,9 +98,9 @@ export async function getPopularProducts(
       popular: products.popular,
       instructions: products.instructions,
       rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-      isSaved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
-      created_at: sql<Date>`MAX(${products.created_at})`,
-      updated_at: sql<Date>`MAX(${products.updated_at})`,
+      is_saved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
+      created_at: products.created_at,
+      updated_at: products.updated_at,
     })
     .from(products)
     .leftJoin(reviews, eq(reviews.product_id, products.id))
