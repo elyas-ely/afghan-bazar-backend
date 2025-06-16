@@ -13,12 +13,9 @@ export const createReviewSchema = z.object({
   user_id: z.string().min(1, 'User ID is required'),
   product_id: z.number().min(1, 'Product ID is required'),
   rating: z.number().min(1).max(5, 'Rating must be between 1 and 5'),
-  images: z.array(z.string().url()).min(1),
+  images: z.array(z.string().url()).optional(),
   comment: z.string().min(1, 'Comment is required'),
 })
-
-// Type for the validated data when creating a review
-export type CreateReviewInput = z.infer<typeof createReviewSchema>
 
 // Zod validation schema for updating a review
 export const updateReviewSchema = z

@@ -11,15 +11,31 @@ export async function getProductReview(c: Context) {
   const productId = Number(c.req.param('id'))
 
   if (!productId) {
-    return c.json({ error: 'Product ID is required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID is required',
+      },
+      400
+    )
   }
 
   try {
     const { data, count } = await getProductReviews(productId)
-    return c.json({ data, count })
+    return c.json({
+      success: true,
+      data,
+      count,
+    })
   } catch (error) {
     console.log(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -28,7 +44,13 @@ export async function getProductReviewById(c: Context) {
   const reviewId = Number(c.req.param('reviewId'))
 
   if (!productId || !reviewId) {
-    return c.json({ error: 'Product ID and Review ID are required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID and Review ID are required',
+      },
+      400
+    )
   }
 
   try {
@@ -48,10 +70,19 @@ export async function getProductReviewById(c: Context) {
       .limit(10)
       .offset(0)
 
-    return c.json(data)
+    return c.json({
+      success: true,
+      data,
+    })
   } catch (error) {
     console.log(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -66,13 +97,21 @@ export async function createProductReview(c: Context) {
     // const newReview = await db.insert(reviews).values(validatedData).returning()
 
     return c.json(
-      { message: 'Review created successfully', review: 'hhj' },
+      {
+        success: true,
+        message: 'Review created successfully',
+        review: 'hhj',
+      },
       201
     )
   } catch (error) {
     console.error('Error creating review:', error)
     return c.json(
-      { error: 'Internal Server Error', details: String(error) },
+      {
+        success: false,
+        message: 'Internal Server Error',
+        details: String(error),
+      },
       500
     )
   }
@@ -84,7 +123,13 @@ export async function updateProductReview(c: Context) {
   const reviewId = Number(c.req.param('reviewId'))
 
   if (!productId || !reviewId) {
-    return c.json({ error: 'Product ID and Review ID are required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID and Review ID are required',
+      },
+      400
+    )
   }
 
   // Validate the request body
@@ -114,7 +159,13 @@ export async function updateProductReview(c: Context) {
       .limit(1)
 
     if (existingReview.length === 0) {
-      return c.json({ error: 'Review not found' }, 404)
+      return c.json(
+        {
+          success: false,
+          message: 'Review not found',
+        },
+        404
+      )
     }
 
     // If user_id is provided, verify that the review belongs to this user
@@ -150,15 +201,28 @@ export async function updateProductReview(c: Context) {
       .returning()
 
     return c.json({
+      success: true,
       message: 'Review updated successfully',
       review: updatedReview[0],
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return c.json({ error: error.errors }, 400)
+      return c.json(
+        {
+          success: false,
+          message: error.errors,
+        },
+        400
+      )
     }
     console.log(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }
 
@@ -168,7 +232,13 @@ export async function deleteProductReview(c: Context) {
   const reviewId = Number(c.req.param('reviewId'))
 
   if (!productId || !reviewId) {
-    return c.json({ error: 'Product ID and Review ID are required' }, 400)
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID and Review ID are required',
+      },
+      400
+    )
   }
 
   try {
@@ -185,12 +255,21 @@ export async function deleteProductReview(c: Context) {
         .limit(1)
 
       if (existingReview.length === 0) {
-        return c.json({ error: 'Review not found' }, 404)
+        return c.json(
+          {
+            success: false,
+            message: 'Review not found',
+          },
+          404
+        )
       }
 
       if (existingReview[0].user_id !== userId) {
         return c.json(
-          { error: 'You are not authorized to delete this review' },
+          {
+            success: false,
+            message: 'You are not authorized to delete this review',
+          },
           403
         )
       }
@@ -203,12 +282,30 @@ export async function deleteProductReview(c: Context) {
       .returning()
 
     if (deletedReview.length === 0) {
-      return c.json({ error: 'Review not found' }, 404)
+      return c.json(
+        {
+          success: false,
+          message: 'Review not found',
+        },
+        404
+      )
     }
 
-    return c.json({ message: 'Review deleted successfully' })
+    return c.json(
+      {
+        success: true,
+        message: 'Review deleted successfully',
+      },
+      200
+    )
   } catch (error) {
     console.log(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }

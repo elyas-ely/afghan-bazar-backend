@@ -6,11 +6,17 @@ import {
   updateProductReview,
   deleteProductReview,
 } from '../controllers/reviews.controller'
+import {
+  createProductReviewFn,
+  getProductReviewFn,
+  getReviewsCountByRatingFn,
+} from '../controllers/review.controller'
 
 const reviewRouter = new Hono()
-reviewRouter.get('/', getProductReview)
+reviewRouter.get('/', getProductReviewFn)
+reviewRouter.get('/count', getReviewsCountByRatingFn)
 reviewRouter.get('/:reviewId', getProductReviewById)
-reviewRouter.post('/', createProductReview)
+reviewRouter.post('/', createProductReviewFn)
 reviewRouter.patch('/:reviewId', updateProductReview)
 reviewRouter.delete('/:reviewId', deleteProductReview)
 

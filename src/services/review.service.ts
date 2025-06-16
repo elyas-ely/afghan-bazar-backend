@@ -10,6 +10,7 @@ export async function getProductReviews(productId: number) {
       .select({
         id: reviews.id,
         user_name: users.username,
+        country: users.country,
         rating: reviews.rating,
         comment: reviews.comment,
         images: reviews.images,
@@ -36,4 +37,34 @@ export async function getProductReviews(productId: number) {
     data,
     count: countResult[0]?.count ?? 0,
   }
+}
+
+export async function getReviewsCountByRating(productId: number) {
+  const result = await db
+    .select({
+      rating: reviews.rating,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(reviews)
+    .where(eq(reviews.product_id, productId))
+    .groupBy(reviews.rating)
+
+  // Normalize into all 5 buckets (fill missing with 0)
+  const ratingCounts = {
+    one: 0,
+    two: 0,
+    three: 0,
+    four: 0,
+    five: 0,
+  }
+
+  for (const row of result) {
+    if (Number(row.rating) === 1) ratingCounts.one = row.count
+    else if (Number(row.rating) === 2) ratingCounts.two = row.count
+    else if (Number(row.rating) === 3) ratingCounts.three = row.count
+    else if (Number(row.rating) === 4) ratingCounts.four = row.count
+    else if (Number(row.rating) === 5) ratingCounts.five = row.count
+  }
+
+  return ratingCounts
 }
