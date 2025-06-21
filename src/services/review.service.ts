@@ -9,7 +9,7 @@ export async function getProductReviews(productId: number) {
     db
       .select({
         id: reviews.id,
-        user_name: users.username,
+        user_name: users.user_name,
         country: users.country,
         rating: reviews.rating,
         comment: reviews.comment,

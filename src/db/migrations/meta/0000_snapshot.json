@@ -1,5 +1,5 @@
 {
-  "id": "68b3e97d-6c2c-4746-9c68-1947c861676d",
+  "id": "1421ff57-a700-41a5-a871-a99d3ea8585a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -206,7 +206,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 2)",
+          "type": "numeric(10, 1)",
           "primaryKey": false,
           "notNull": true
         },
@@ -474,6 +474,118 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.saves": {
+      "name": "saves",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_saves_user_id": {
+          "name": "idx_saves_user_id",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_saves_product_id": {
+          "name": "idx_saves_product_id",
+          "columns": [
+            {
+              "expression": "product_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "saves_user_id_users_id_fk": {
+          "name": "saves_user_id_users_id_fk",
+          "tableFrom": "saves",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "saves_product_id_products_id_fk": {
+          "name": "saves_product_id_products_id_fk",
+          "tableFrom": "saves",
+          "tableTo": "products",
+          "columnsFrom": [
+            "product_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "saves_user_id_product_id_unique": {
+          "name": "saves_user_id_product_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id",
+            "product_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -484,8 +596,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "username": {
-          "name": "username",
+        "user_name": {
+          "name": "user_name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -505,6 +617,12 @@
         "country": {
           "name": "country",
           "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },

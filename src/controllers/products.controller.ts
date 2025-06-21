@@ -61,7 +61,6 @@ export async function getPopularProductsFn(c: Context) {
   const userId = String(c.req.queries('userId'))
   const limit = 10
 
-  console.log(userId)
 
   if (isNaN(categoryId) || !userId) {
     return c.json(
