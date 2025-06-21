@@ -1,23 +1,19 @@
 import { Hono } from 'hono'
 import {
-  getProductReview,
-  getProductReviewById,
-  createProductReview,
-  updateProductReview,
-  deleteProductReview,
-} from '../controllers/reviews.controller'
-import {
-  createProductReviewFn,
   getProductReviewFn,
+  getProductReviewByIdFn,
+  createProductReviewFn,
+  updateProductReviewFn,
+  deleteProductReviewFn,
   getReviewsCountByRatingFn,
-} from '../controllers/review.controller'
+} from '../controllers/reviews.controller'
 
 const reviewRouter = new Hono()
 reviewRouter.get('/', getProductReviewFn)
 reviewRouter.get('/count', getReviewsCountByRatingFn)
-reviewRouter.get('/:reviewId', getProductReviewById)
+reviewRouter.get('/:rId', getProductReviewByIdFn)
 reviewRouter.post('/', createProductReviewFn)
-reviewRouter.patch('/:reviewId', updateProductReview)
-reviewRouter.delete('/:reviewId', deleteProductReview)
+reviewRouter.patch('/:rId', updateProductReviewFn)
+reviewRouter.delete('/:rId', deleteProductReviewFn)
 
 export default reviewRouter

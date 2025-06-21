@@ -1,5 +1,5 @@
 import { db } from '../config/database'
-import { desc, eq, sql } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 import { reviews } from '../db/schema/reviews'
 import { users } from '../db/schema/users'
 import { products } from '../db/schema/products'
@@ -14,7 +14,7 @@ export async function getProductReviews(productId: number) {
         rating: reviews.rating,
         comment: reviews.comment,
         images: reviews.images,
-        product_name: products.name,
+        product_id: reviews.product_id,
         profile: users.profile,
         updated_at: reviews.updated_at,
         created_at: reviews.created_at,
@@ -22,7 +22,6 @@ export async function getProductReviews(productId: number) {
       .from(reviews)
       .where(eq(reviews.product_id, productId))
       .innerJoin(users, eq(reviews.user_id, users.id))
-      .innerJoin(products, eq(reviews.product_id, products.id))
       .orderBy(desc(reviews.created_at))
       .limit(10)
       .offset(0),
@@ -67,4 +66,38 @@ export async function getReviewsCountByRating(productId: number) {
   }
 
   return ratingCounts
+}
+
+export async function getProductReviewById(reviewId: number) {
+  const result = await db
+    .select()
+    .from(reviews)
+    .where(and(eq(reviews.id, reviewId)))
+
+  return result[0]
+}
+
+export async function updateReview(reviewId: number, data: any) {
+  const result = await db
+    .update(reviews)
+    .set(data)
+    .where(eq(reviews.id, reviewId))
+    .returning()
+
+  return result[0]
+}
+
+export async function createReview(data: any) {
+  const result = await db.insert(reviews).values(data).returning()
+
+  return result[0]
+}
+
+export async function deleteReview(reviewId: number, userId: string) {
+  const result = await db
+    .delete(reviews)
+    .where(and(eq(reviews.id, reviewId), eq(reviews.user_id, userId)))
+    .returning()
+
+  return result[0]
 }

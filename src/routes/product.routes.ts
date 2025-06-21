@@ -21,14 +21,14 @@ router.get('/popular', getPopularProductsFn)
 router.get('/search', getSearchProductsFn)
 router.get('/filtered', getFilteredProductsFn)
 router.get('/viewed', getViewedProductsFn)
-router.put('/viewed/:id', updateViewedProductFn)
-router.get('/:id', getProductByIdFn)
+router.put('/viewed/:pId', updateViewedProductFn)
+router.get('/:pId', getProductByIdFn)
 
 router.post('/', createProduct)
-router.patch('/:id', updateProductFn)
-router.delete('/:id', deleteProductFn)
+router.patch('/:pId', updateProductFn)
+router.delete('/:pId', deleteProductFn)
 
 // Review routes
-router.route('/:id/reviews', reviewRouter)
+router.route('/:pId/reviews', reviewRouter)
 
 export default router

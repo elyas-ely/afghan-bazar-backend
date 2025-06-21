@@ -61,7 +61,6 @@ export async function getPopularProductsFn(c: Context) {
   const userId = String(c.req.queries('userId'))
   const limit = 10
 
-
   if (isNaN(categoryId) || !userId) {
     return c.json(
       {
@@ -93,7 +92,7 @@ export async function getPopularProductsFn(c: Context) {
 }
 
 export async function getProductByIdFn(c: Context) {
-  const idParam = c.req.param('id')
+  const idParam = c.req.param('pId')
   const productId = Number(idParam)
 
   if (!productId) {
@@ -289,7 +288,7 @@ export async function createProduct(c: Context) {
 }
 
 export async function updateViewedProductFn(c: Context) {
-  const productId = Number(c.req.param('id'))
+  const productId = Number(c.req.param('pId'))
   const userId = String(c.req.queries('userId'))
 
   if (!productId || !userId) {
@@ -326,7 +325,7 @@ export async function updateViewedProductFn(c: Context) {
 }
 
 export async function updateProductFn(c: Context) {
-  const idParam = c.req.param('id')
+  const idParam = c.req.param('pId')
   const productId = Number(idParam)
 
   if (!productId) {

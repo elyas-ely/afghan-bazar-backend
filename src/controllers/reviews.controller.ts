@@ -5,10 +5,17 @@ import { users } from '../db/schema/users'
 import { and, desc, eq } from 'drizzle-orm'
 import { db } from '../config/database'
 import { z } from 'zod'
-import { getProductReviews } from '../services/review.service'
+import {
+  createReview,
+  deleteReview,
+  getProductReviewById,
+  getProductReviews,
+  getReviewsCountByRating,
+  updateReview,
+} from '../services/review.service'
 
-export async function getProductReview(c: Context) {
-  const productId = Number(c.req.param('id'))
+export async function getProductReviewFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
 
   if (!productId) {
     return c.json(
@@ -24,7 +31,7 @@ export async function getProductReview(c: Context) {
     const { data, count } = await getProductReviews(productId)
     return c.json({
       success: true,
-      data,
+      reviews: data,
       count,
     })
   } catch (error) {
@@ -39,9 +46,9 @@ export async function getProductReview(c: Context) {
   }
 }
 
-export async function getProductReviewById(c: Context) {
-  const productId = Number(c.req.param('id'))
-  const reviewId = Number(c.req.param('reviewId'))
+export async function getProductReviewByIdFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
+  const reviewId = Number(c.req.param('rId'))
 
   if (!productId || !reviewId) {
     return c.json(
@@ -54,25 +61,11 @@ export async function getProductReviewById(c: Context) {
   }
 
   try {
-    const data = await db
-      .select({
-        id: reviews.id,
-        rating: reviews.rating,
-        userName: users.username,
-        profile: users.profile,
-        comment: reviews.comment,
-        createdAt: reviews.created_at,
-      })
-      .from(reviews)
-      .where(and(eq(reviews.id, reviewId), eq(reviews.product_id, productId)))
-      .innerJoin(users, eq(reviews.user_id, users.id))
-      .orderBy(desc(reviews.created_at))
-      .limit(10)
-      .offset(0)
+    const data = await getProductReviewById(reviewId)
 
     return c.json({
       success: true,
-      data,
+      review: data,
     })
   } catch (error) {
     console.log(error)
@@ -86,21 +79,61 @@ export async function getProductReviewById(c: Context) {
   }
 }
 
+export async function getReviewsCountByRatingFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
+
+  if (!productId) {
+    return c.json(
+      {
+        success: 'false',
+        message: 'Product ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const reviews = await getReviewsCountByRating(productId)
+    return c.json({
+      success: 'true',
+      reviews,
+    })
+  } catch (error) {
+    console.error(error)
+    return c.json(
+      {
+        success: 'false',
+        message: 'Internal Server Error',
+      },
+      500
+    )
+  }
+}
+
 // Create a review
-export async function createProductReview(c: Context) {
+export async function createProductReviewFn(c: Context) {
   const body = await c.req.json()
+
+  if (!body?.user_id || !body?.product_id || !body?.rating || !body?.comment) {
+    return c.json(
+      {
+        success: false,
+        message: 'User ID, Product ID, Rating, Comment are required',
+      },
+      400
+    )
+  }
 
   try {
     const validatedData = createReviewSchema.parse(body)
 
-    // Insert into database
-    // const newReview = await db.insert(reviews).values(validatedData).returning()
+    const data = await createReview(validatedData)
 
     return c.json(
       {
         success: true,
         message: 'Review created successfully',
-        review: 'hhj',
+        review: data,
       },
       201
     )
@@ -118,9 +151,9 @@ export async function createProductReview(c: Context) {
 }
 
 // Update a review
-export async function updateProductReview(c: Context) {
-  const productId = Number(c.req.param('id'))
-  const reviewId = Number(c.req.param('reviewId'))
+export async function updateProductReviewFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
+  const reviewId = Number(c.req.param('rId'))
 
   if (!productId || !reviewId) {
     return c.json(
@@ -132,94 +165,24 @@ export async function updateProductReview(c: Context) {
     )
   }
 
-  // Validate the request body
-  const reviewUpdateSchema = z
-    .object({
-      rating: z
-        .number()
-        .min(1)
-        .max(5, 'Rating must be between 1 and 5')
-        .optional(),
-      comment: z.string().min(1, 'Comment is required').optional(),
-      user_id: z.string().min(1).optional(), // For verification purposes
-    })
-    .refine((data) => Object.keys(data).length > 0, {
-      message: 'At least one field must be provided to update',
-    })
-
   try {
     const body = await c.req.json()
     const validatedData = updateReviewSchema.parse(body)
 
-    // Check if the review exists and belongs to the user (if user_id is provided)
-    const existingReview = await db
-      .select()
-      .from(reviews)
-      .where(and(eq(reviews.id, reviewId), eq(reviews.product_id, productId)))
-      .limit(1)
-
-    if (existingReview.length === 0) {
-      return c.json(
-        {
-          success: false,
-          message: 'Review not found',
-        },
-        404
-      )
-    }
-
-    // If user_id is provided, verify that the review belongs to this user
-    // if (
-    //   validatedData.user_id &&
-    //   existingReview[0].user_id !== validatedData.user_id
-    // ) {
-    //   return c.json(
-    //     { error: 'You are not authorized to update this review' },
-    //     403
-    //   )
-    // }
-
-    // Prepare update data (excluding user_id from updates)
-    const updateData: { rating?: string; comment?: string; updated_at: Date } =
-      {
-        updated_at: new Date(),
-      }
-
-    if (validatedData.rating !== undefined) {
-      updateData.rating = String(validatedData.rating)
-    }
-
-    if (validatedData.comment !== undefined) {
-      updateData.comment = validatedData.comment
-    }
-
-    // Update the review
-    const updatedReview = await db
-      .update(reviews)
-      .set(updateData)
-      .where(and(eq(reviews.id, reviewId), eq(reviews.product_id, productId)))
-      .returning()
+    const data = await updateReview(reviewId, validatedData)
 
     return c.json({
       success: true,
       message: 'Review updated successfully',
-      review: updatedReview[0],
+      review: data,
     })
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return c.json(
-        {
-          success: false,
-          message: error.errors,
-        },
-        400
-      )
-    }
-    console.log(error)
+    console.error('Error updating review:', error)
     return c.json(
       {
         success: false,
         message: 'Internal Server Error',
+        details: String(error),
       },
       500
     )
@@ -227,11 +190,12 @@ export async function updateProductReview(c: Context) {
 }
 
 // Delete a review
-export async function deleteProductReview(c: Context) {
-  const productId = Number(c.req.param('id'))
-  const reviewId = Number(c.req.param('reviewId'))
+export async function deleteProductReviewFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
+  const reviewId = Number(c.req.param('rId'))
+  const userId = String(c.req.queries('userId'))
 
-  if (!productId || !reviewId) {
+  if (!productId || !reviewId || !userId) {
     return c.json(
       {
         success: false,
@@ -242,54 +206,7 @@ export async function deleteProductReview(c: Context) {
   }
 
   try {
-    // Optionally validate user ownership (can be extended based on requirements)
-    const body = await c.req.json().catch(() => ({}))
-    const userId = body.user_id
-
-    // If userId is provided, verify ownership
-    if (userId) {
-      const existingReview = await db
-        .select()
-        .from(reviews)
-        .where(and(eq(reviews.id, reviewId), eq(reviews.product_id, productId)))
-        .limit(1)
-
-      if (existingReview.length === 0) {
-        return c.json(
-          {
-            success: false,
-            message: 'Review not found',
-          },
-          404
-        )
-      }
-
-      if (existingReview[0].user_id !== userId) {
-        return c.json(
-          {
-            success: false,
-            message: 'You are not authorized to delete this review',
-          },
-          403
-        )
-      }
-    }
-
-    // Delete the review
-    const deletedReview = await db
-      .delete(reviews)
-      .where(and(eq(reviews.id, reviewId), eq(reviews.product_id, productId)))
-      .returning()
-
-    if (deletedReview.length === 0) {
-      return c.json(
-        {
-          success: false,
-          message: 'Review not found',
-        },
-        404
-      )
-    }
+    await deleteReview(reviewId, userId)
 
     return c.json(
       {
