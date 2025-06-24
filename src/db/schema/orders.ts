@@ -53,5 +53,6 @@ export const orders = pgTable(
     shippingAddressIndex: index('orders_shipping_address_idx').on(
       orders.shipping_address_id
     ),
+    productIdIndex: index('orders_product_id_idx').on(orders.product_id),
   })
 )

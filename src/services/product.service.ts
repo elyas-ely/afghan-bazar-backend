@@ -287,6 +287,44 @@ export async function updateViewedProduct(productId: number, userId: string) {
 
   return updatedProduct[0]
 }
+
+export async function getUserWishlist(
+  offset: number,
+  limit: number,
+  userId: string
+) {
+  const savedProducts = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      price_unit: products.price_unit,
+      images: products.images,
+      weights: products.weights,
+      features: products.features,
+      origin: products.origin,
+      popular: products.popular,
+      instructions: products.instructions,
+      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
+      is_saved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
+    })
+    .from(saves)
+    .innerJoin(products, eq(saves.product_id, products.id))
+    .leftJoin(reviews, eq(reviews.product_id, products.id))
+    .where(eq(saves.user_id, userId))
+    .groupBy(products.id)
+    .limit(limit + 1) // Fetch one extra item
+    .offset(offset)
+
+  const hasNextPage = savedProducts.length > limit
+  if (hasNextPage) {
+    savedProducts.pop() // Remove the extra item
+  }
+
+  return { items: savedProducts, hasNextPage }
+}
+
 export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {
     name: data.name,

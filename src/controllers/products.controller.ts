@@ -9,6 +9,7 @@ import {
   getSearchProducts,
   getFilteredProducts,
   getViewedProducts,
+  getUserWishlist,
 } from '../services/product.service'
 import { ProductFilters, UpdateProductInput } from '../types/product.types'
 
@@ -261,6 +262,45 @@ export async function getViewedProductsFn(c: Context) {
     )
   }
 }
+
+export async function getWishlistProductsFn(c: Context) {
+  const userId = String(c.req.queries('userId'))
+  const page = parseInt(String(c.req.queries('page'))) || 1
+  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
+
+  // Calculate offset from page and pageSize
+  const offset = (page - 1) * pageSize
+
+  if (!userId) {
+    return c.json(
+      {
+        success: false,
+        message: 'User ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const result = await getUserWishlist(offset, pageSize, userId)
+    return c.json({
+      success: true,
+      products: result.items,
+      hasNextPage: result.hasNextPage,
+    })
+  } catch (error) {
+    console.error(`Error getting wishlist:`, error)
+    return c.json(
+      {
+        success: false,
+        message: 'Failed to get wishlist',
+        error: (error as Error).message,
+      },
+      500
+    )
+  }
+}
+
 //
 //
 //
