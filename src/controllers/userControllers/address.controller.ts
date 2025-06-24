@@ -74,7 +74,7 @@ export async function getUserAddressByIdFn(c: Context) {
 }
 
 export async function createUserAddressFn(c: Context) {
-  const userId = c.req.param('userId') as string
+  const userId = String(c.req.param('userId'))
 
   if (!userId) {
     return c.json(

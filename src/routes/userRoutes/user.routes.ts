@@ -10,6 +10,7 @@ import { errorHandler } from '../../middleware/error.middleware'
 import addressRouter from './address.routes'
 import ordersRouter from './orders.routes'
 import wishlistRouter from './wishlist.router'
+import viewedProductsRouter from './viewed.routes'
 
 const router = new Hono()
 
@@ -27,5 +28,6 @@ router.delete('/:userId', deleteUserFn)
 router.route('/:userId/addresses', addressRouter)
 router.route('/:userId/orders', ordersRouter)
 router.route('/:userId/saves', wishlistRouter)
+router.route('/:userId/viewed', viewedProductsRouter)
 
 export default router

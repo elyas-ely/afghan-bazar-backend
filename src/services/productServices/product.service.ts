@@ -242,49 +242,11 @@ export async function getFilteredProducts(filters: ProductFilters) {
   }
 }
 
-export async function getViewedProducts(userId: string) {
-  const viewedProducts = await db
-    .select({
-      id: products.id,
-      name: products.name,
-      description: products.description,
-      price: products.price,
-      price_unit: products.price_unit,
-      images: products.images,
-      weights: products.weights,
-      features: products.features,
-      origin: products.origin,
-      popular: products.popular,
-      instructions: products.instructions,
-      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-    })
-    .from(viewed_products)
-    .innerJoin(products, eq(viewed_products.product_id, products.id))
-    .leftJoin(reviews, eq(reviews.product_id, products.id))
-    .where(eq(viewed_products.user_id, userId))
-    .groupBy(products.id, viewed_products.created_at)
-    .orderBy(desc(viewed_products.created_at))
-
-  return viewedProducts
-}
-
 //
 //
 //
 //
 //
-
-export async function updateViewedProduct(productId: number, userId: string) {
-  const updatedProduct = await db
-    .insert(viewed_products)
-    .values({
-      product_id: productId,
-      user_id: userId,
-    })
-    .returning()
-
-  return updatedProduct[0]
-}
 
 export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {

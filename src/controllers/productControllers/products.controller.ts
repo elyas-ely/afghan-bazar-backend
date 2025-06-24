@@ -226,78 +226,8 @@ export async function getFilteredProductsFn(c: Context) {
   }
 }
 
-export async function getViewedProductsFn(c: Context) {
-  const userId = String(c.req.queries('userId'))
-
-  if (!userId) {
-    return c.json(
-      {
-        success: false,
-        message: 'User ID is required',
-      },
-      400
-    )
-  }
-
-  try {
-    const products = await getViewedProducts(userId)
-
-    return c.json({
-      success: true,
-      products,
-    })
-  } catch (error) {
-    console.error(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Internal Server Error',
-        code: 'INTERNAL_ERROR',
-      },
-      500
-    )
-  }
-}
-
 //
 //
 //
 //
 //
-
-export async function updateViewedProductFn(c: Context) {
-  const productId = Number(c.req.param('pId'))
-  const userId = String(c.req.queries('userId'))
-
-  if (!productId || !userId) {
-    return c.json(
-      {
-        success: false,
-        message: 'Valid product or user ID is required',
-      },
-      400
-    )
-  }
-
-  try {
-    const updatedProduct = await updateViewedProduct(productId, userId)
-
-    return c.json(
-      {
-        success: true,
-        message: 'Product updated successfully',
-        product: updatedProduct,
-      },
-      200
-    )
-  } catch (error: any) {
-    console.log(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Internal Server Error',
-      },
-      500
-    )
-  }
-}
