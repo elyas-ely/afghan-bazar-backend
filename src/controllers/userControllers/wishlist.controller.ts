@@ -40,23 +40,43 @@ export async function getSavesProductsFn(c: Context) {
 }
 
 export async function addToWishlistFn(c: Context) {
-  const userId = c.req.param('userId')
-  const productId = Number(c.req.query('productId'))
+  const userId = String(c.req.param('userId'))
 
-  if (!userId || !productId) {
+  if (!userId) {
     return c.json(
       {
-        success: 'false',
-        message: 'User ID and Product ID are required',
+        success: false,
+        message: 'User ID is required',
       },
       400
     )
   }
   try {
+    const body = await c.req.json()
+    const productId = Number(body.productId)
+
+    if (!productId) {
+      return c.json(
+        {
+          success: false,
+          message: 'Product ID is required',
+        },
+        400
+      )
+    }
     const wishlist = await addToWishlist(userId, productId)
-    return c.json({ wishlist })
+    return c.json({
+      success: true,
+      wishlist,
+    })
   } catch (error) {
     console.error(error)
-    return c.json({ error: 'Internal Server Error' }, 500)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
   }
 }

@@ -55,6 +55,7 @@ export async function addToWishlist(userId: string, productId: number) {
 
   if (existing.length > 0) {
     await db.delete(saves).where(condition).execute()
+
     return { status: 'removed' }
   }
 
