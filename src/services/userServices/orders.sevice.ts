@@ -1,11 +1,11 @@
 import { desc, eq, sql } from 'drizzle-orm'
-import { db } from '../config/database'
-import { orders } from '../db/schema/orders'
-import { addresses } from '../db/schema/addresses'
-import { products } from '../db/schema/products'
-import { reviews } from '../db/schema/reviews'
-import { saves } from '../db/schema/saves'
-import { orderItems } from '../db/schema/order_items'
+import { db } from '../../config/database'
+import { orders } from '../../db/schema/orders'
+import { addresses } from '../../db/schema/addresses'
+import { products } from '../../db/schema/products'
+import { reviews } from '../../db/schema/reviews'
+import { saves } from '../../db/schema/saves'
+import { orderItems } from '../../db/schema/order_items'
 
 // =========================
 // ====== GET ORDERS  =====

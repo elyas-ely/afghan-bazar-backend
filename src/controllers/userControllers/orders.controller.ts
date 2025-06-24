@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { getUserOrders } from '../services/orders.sevice'
+import { getUserOrders } from '../../services/userServices/orders.sevice'
 
 export async function getUserOrdersFn(c: Context) {
   const userId = c.req.param('userId')

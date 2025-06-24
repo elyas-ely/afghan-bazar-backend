@@ -2,14 +2,14 @@ import { Context } from 'hono'
 import {
   createUserAddressSchema,
   updateUserAddressSchema,
-} from '../schema/address.schema'
+} from '../../schema/address.schema'
 import {
   getUserAddresses,
   getUserAddressById,
   createUserAddress,
   updateUserAddress,
   deleteUserAddress,
-} from '../services/address.service'
+} from '../../services/userServices/address.service'
 
 export async function getUserAddressesFn(c: Context) {
   const userId = c.req.param('userId')

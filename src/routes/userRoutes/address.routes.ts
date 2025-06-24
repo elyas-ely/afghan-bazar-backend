@@ -5,7 +5,7 @@ import {
   getUserAddressByIdFn,
   getUserAddressesFn,
   updateUserAddressFn,
-} from '../controllers/address.controller'
+} from '../../controllers/userControllers/address.controller'
 
 const addressRouter = new Hono()
 

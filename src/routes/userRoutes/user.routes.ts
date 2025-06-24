@@ -5,10 +5,11 @@ import {
   getUserByIdFn,
   updateUserFn,
   deleteUserFn,
-} from '../controllers/user.controller'
-import { errorHandler } from '../middleware/error.middleware'
+} from '../../controllers/userControllers/user.controller'
+import { errorHandler } from '../../middleware/error.middleware'
 import addressRouter from './address.routes'
 import ordersRouter from './orders.routes'
+import wishlistRouter from './wishlist.router'
 
 const router = new Hono()
 
@@ -25,5 +26,6 @@ router.delete('/:userId', deleteUserFn)
 // Mount address routes under user routes
 router.route('/:userId/addresses', addressRouter)
 router.route('/:userId/orders', ordersRouter)
+router.route('/:userId/saves', wishlistRouter)
 
 export default router

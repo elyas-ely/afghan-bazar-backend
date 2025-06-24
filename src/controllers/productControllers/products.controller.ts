@@ -1,17 +1,13 @@
 import { Context } from 'hono'
-import { updateProductSchema } from '../schema/product.schema'
 import {
   getProductById,
-  updateProduct,
-  deleteProduct,
   getPopularProducts,
   getRecommendedProducts,
   getSearchProducts,
   getFilteredProducts,
   getViewedProducts,
-  getUserWishlist,
-} from '../services/product.service'
-import { ProductFilters, UpdateProductInput } from '../types/product.types'
+} from '../../services/productServices/product.service'
+import { ProductFilters } from '../../types/product.types'
 
 export async function getRecommendedProductsFn(c: Context) {
   const categoryId = Number(c.req.queries('categoryId'))
@@ -263,69 +259,11 @@ export async function getViewedProductsFn(c: Context) {
   }
 }
 
-export async function getWishlistProductsFn(c: Context) {
-  const userId = String(c.req.queries('userId'))
-  const page = parseInt(String(c.req.queries('page'))) || 1
-  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
-
-  // Calculate offset from page and pageSize
-  const offset = (page - 1) * pageSize
-
-  if (!userId) {
-    return c.json(
-      {
-        success: false,
-        message: 'User ID is required',
-      },
-      400
-    )
-  }
-
-  try {
-    const result = await getUserWishlist(offset, pageSize, userId)
-    return c.json({
-      success: true,
-      products: result.items,
-      hasNextPage: result.hasNextPage,
-    })
-  } catch (error) {
-    console.error(`Error getting wishlist:`, error)
-    return c.json(
-      {
-        success: false,
-        message: 'Failed to get wishlist',
-        error: (error as Error).message,
-      },
-      500
-    )
-  }
-}
-
 //
 //
 //
 //
 //
-
-export async function createProduct(c: Context) {
-  try {
-    // const body = await c.req.json()
-
-    // const validatedData: CreateProductInput = createProductSchema.parse(body)
-
-    // const newProduct = await createNewProduct(validatedData)
-    return c.json({ product: 'product created' }, 201)
-  } catch (error) {
-    console.error(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Invalid product data',
-      },
-      400
-    )
-  }
-}
 
 export async function updateViewedProductFn(c: Context) {
   const productId = Number(c.req.param('pId'))
@@ -354,127 +292,6 @@ export async function updateViewedProductFn(c: Context) {
     )
   } catch (error: any) {
     console.log(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Internal Server Error',
-      },
-      500
-    )
-  }
-}
-
-export async function updateProductFn(c: Context) {
-  const idParam = c.req.param('pId')
-  const productId = Number(idParam)
-
-  if (!productId) {
-    return c.json(
-      {
-        success: false,
-        message: 'Valid product ID is required',
-      },
-      400
-    )
-  }
-
-  try {
-    // First check if product exists
-    const existingProduct = await getProductById(productId)
-    if (!existingProduct) {
-      return c.json(
-        {
-          success: false,
-          message: 'Product not found',
-        },
-        404
-      )
-    }
-
-    const body = await c.req.json()
-    // Parse and validate the input data through schema
-    const validatedData: UpdateProductInput = updateProductSchema.parse(body)
-
-    if (Object.keys(validatedData).length === 0) {
-      return c.json(
-        {
-          success: false,
-          message: 'No valid fields to update provided',
-        },
-        400
-      )
-    }
-
-    // The service will handle the price conversion
-    const updatedProduct = await updateProduct(productId, validatedData as any)
-
-    return c.json(
-      {
-        success: true,
-        message: 'Product updated successfully',
-        product: updatedProduct,
-      },
-      200
-    )
-  } catch (error: any) {
-    if (error.name === 'ZodError') {
-      return c.json(
-        {
-          success: false,
-          message: error.errors,
-        },
-        400
-      )
-    }
-
-    console.error(error)
-    return c.json(
-      {
-        success: false,
-        message: 'Internal Server Error',
-      },
-      500
-    )
-  }
-}
-
-export async function deleteProductFn(c: Context) {
-  const idParam = c.req.param('id')
-  const productId = Number(idParam)
-
-  if (!productId) {
-    return c.json(
-      {
-        success: false,
-        message: 'Valid product ID is required',
-      },
-      400
-    )
-  }
-
-  try {
-    const deletedProduct = await deleteProduct(productId)
-
-    if (!deletedProduct) {
-      return c.json(
-        {
-          success: false,
-          message: 'Product not found',
-        },
-        404
-      )
-    }
-
-    return c.json(
-      {
-        success: true,
-        message: 'Product deleted successfully',
-        product: deletedProduct,
-      },
-      200
-    )
-  } catch (error) {
-    console.error(error)
     return c.json(
       {
         success: false,

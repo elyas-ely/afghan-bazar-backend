@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import userRoutes from './routes/user.routes'
-import productRoutes from './routes/product.routes'
+import userRoutes from './routes/userRoutes/user.routes'
+import productRoutes from './routes/productRoutes/product.routes'
 
 const app = new Hono()
 

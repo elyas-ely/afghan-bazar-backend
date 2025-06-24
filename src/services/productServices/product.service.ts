@@ -1,17 +1,15 @@
-import { db } from '../config/database'
+import { db } from '../../config/database'
 import { desc, eq, sql, and, ilike, SQL, asc } from 'drizzle-orm'
 
 import {
-  UpdateProductInput,
   CreateProductInput,
   DbCreateProductInput,
-  DbUpdateProductInput,
   ProductFilters,
-} from '../types/product.types'
-import { products } from '../db/schema/products'
-import { reviews } from '../db/schema/reviews'
-import { viewed_products } from '../db/schema/viewedProducts'
-import { saves } from '../db/schema/saves'
+} from '../../types/product.types'
+import { products } from '../../db/schema/products'
+import { reviews } from '../../db/schema/reviews'
+import { viewed_products } from '../../db/schema/viewedProducts'
+import { saves } from '../../db/schema/saves'
 
 export async function getRecommendedProducts(
   categoryId: number,
@@ -288,43 +286,6 @@ export async function updateViewedProduct(productId: number, userId: string) {
   return updatedProduct[0]
 }
 
-export async function getUserWishlist(
-  offset: number,
-  limit: number,
-  userId: string
-) {
-  const savedProducts = await db
-    .select({
-      id: products.id,
-      name: products.name,
-      description: products.description,
-      price: products.price,
-      price_unit: products.price_unit,
-      images: products.images,
-      weights: products.weights,
-      features: products.features,
-      origin: products.origin,
-      popular: products.popular,
-      instructions: products.instructions,
-      rating: sql<number>`COALESCE(ROUND(AVG(${reviews.rating})::numeric, 1), 0)`,
-      is_saved: sql<boolean>`EXISTS (SELECT 1 FROM ${saves} WHERE ${saves.product_id} = ${products.id} AND ${saves.user_id} = ${userId})`,
-    })
-    .from(saves)
-    .innerJoin(products, eq(saves.product_id, products.id))
-    .leftJoin(reviews, eq(reviews.product_id, products.id))
-    .where(eq(saves.user_id, userId))
-    .groupBy(products.id)
-    .limit(limit + 1) // Fetch one extra item
-    .offset(offset)
-
-  const hasNextPage = savedProducts.length > limit
-  if (hasNextPage) {
-    savedProducts.pop() // Remove the extra item
-  }
-
-  return { items: savedProducts, hasNextPage }
-}
-
 export async function createNewProduct(data: CreateProductInput) {
   const dbData: DbCreateProductInput = {
     name: data.name,
@@ -343,51 +304,4 @@ export async function createNewProduct(data: CreateProductInput) {
 
   const newProduct = await db.insert(products).values(dbData).returning()
   return newProduct[0]
-}
-
-/**
- * Update a product by ID with partial data
- */
-export async function updateProduct(
-  productId: number,
-  data: UpdateProductInput
-) {
-  // Check if there are fields to update
-  if (Object.keys(data).length === 0) {
-    return getProductById(productId)
-  }
-
-  // Create a proper DB-compatible update object
-  const dbData: DbUpdateProductInput = {}
-
-  // Only copy over fields that are defined
-  if (data.name !== undefined) dbData.name = data.name
-  if (data.description !== undefined) dbData.description = data.description
-  if (data.price !== undefined) dbData.price = data.price.toString()
-  if (data.images !== undefined) dbData.images = data.images
-  if (data.category_id !== undefined) dbData.category_id = data.category_id
-  if (data.weights !== undefined) dbData.weights = data.weights
-  if (data.features !== undefined) dbData.features = data.features
-  if (data.origin !== undefined) dbData.origin = data.origin
-  if (data.instructions !== undefined) dbData.instructions = data.instructions
-
-  const updatedProduct = await db
-    .update(products)
-    .set(dbData)
-    .where(eq(products.id, productId))
-    .returning()
-
-  return updatedProduct[0]
-}
-
-/**
- * Delete a product by ID
- */
-export async function deleteProduct(productId: number) {
-  const deletedProduct = await db
-    .delete(products)
-    .where(eq(products.id, productId))
-    .returning()
-
-  return deletedProduct[0]
 }

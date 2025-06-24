@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { getUserOrdersFn } from '../controllers/orders.controller'
+import { getUserOrdersFn } from '../../controllers/userControllers/orders.controller'
 
 const ordersRouter = new Hono()
 

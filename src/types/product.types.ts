@@ -15,7 +15,7 @@ export type CreateProductInput = Omit<
   images: string[]
   category_id: number
   price_unit: string
-  weights: string[]
+  weights: number[]
   features: string[]
   origin: string
   popular: boolean
@@ -33,7 +33,7 @@ export type DbCreateProductInput = {
   images: string[]
   category_id: number
   price_unit: string
-  weights: string[]
+  weights: number[]
   features: string[]
   origin: string
   popular: boolean
@@ -49,7 +49,7 @@ export type DbUpdateProductInput = {
   images?: string[]
   category_id?: number
   price_unit?: string
-  weights?: string[]
+  weights?: number[]
   features?: string[]
   origin?: string
   popular?: boolean

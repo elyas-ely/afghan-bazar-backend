@@ -1,10 +1,9 @@
 import { Context } from 'hono'
-import { createReviewSchema, updateReviewSchema } from '../schema/review.schema'
-import { reviews } from '../db/schema/reviews'
-import { users } from '../db/schema/users'
-import { and, desc, eq } from 'drizzle-orm'
-import { db } from '../config/database'
-import { z } from 'zod'
+import {
+  createReviewSchema,
+  updateReviewSchema,
+} from '../../schema/review.schema'
+
 import {
   createReview,
   deleteReview,
@@ -12,7 +11,7 @@ import {
   getProductReviews,
   getReviewsCountByRating,
   updateReview,
-} from '../services/review.service'
+} from '../../services/productServices/review.service'
 
 export async function getProductReviewFn(c: Context) {
   const productId = Number(c.req.param('pId'))

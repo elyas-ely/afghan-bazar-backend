@@ -6,7 +6,7 @@ import {
   updateProductReviewFn,
   deleteProductReviewFn,
   getReviewsCountByRatingFn,
-} from '../controllers/reviews.controller'
+} from '../../controllers/productControllers/reviews.controller'
 
 const reviewRouter = new Hono()
 reviewRouter.get('/', getProductReviewFn)

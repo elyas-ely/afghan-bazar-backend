@@ -1,8 +1,8 @@
-import { db } from '../config/database'
+import { db } from '../../config/database'
 import { eq } from 'drizzle-orm'
-import { UpdateUserInput } from '../schema/user.schema'
-import { CreateUserInput } from '../types/user.types'
-import { users } from '../db/schema/users'
+import { UpdateUserInput } from '../../schema/user.schema'
+import { CreateUserInput } from '../../types/user.types'
+import { users } from '../../db/schema/users'
 
 export async function getAllUsers() {
   const allUsers = await db.select().from(users).limit(10)

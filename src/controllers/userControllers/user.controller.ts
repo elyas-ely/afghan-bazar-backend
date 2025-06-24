@@ -1,13 +1,12 @@
 import { Context } from 'hono'
-import { createUserSchema, updateUserSchema } from '../schema/user.schema'
-
+import { createUserSchema, updateUserSchema } from '../../schema/user.schema'
 import {
   getAllUsers,
   getUserById,
   createNewUser,
   updateUser,
   deleteUser,
-} from '../services/user.service'
+} from '../../services/userServices/user.service'
 
 export async function getAllUsersFn(c: Context) {
   try {

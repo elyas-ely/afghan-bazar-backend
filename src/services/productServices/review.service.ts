@@ -1,8 +1,8 @@
-import { db } from '../config/database'
+import { db } from '../../config/database'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { reviews } from '../db/schema/reviews'
-import { users } from '../db/schema/users'
-import { products } from '../db/schema/products'
+import { reviews } from '../../db/schema/reviews'
+import { users } from '../../db/schema/users'
+import { products } from '../../db/schema/products'
 
 export async function getProductReviews(productId: number) {
   const [data, countResult] = await Promise.all([
