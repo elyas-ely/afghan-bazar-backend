@@ -6,7 +6,6 @@ import {
   text,
   integer,
   numeric,
-  unique,
   index,
 } from 'drizzle-orm/pg-core'
 import { products } from './products'
@@ -40,8 +39,6 @@ export const reviews = pgTable(
     ...timestamps,
   },
   (table) => ({
-    uniqueUserProduct: unique().on(table.user_id, table.product_id),
     idxProduct: index('idx_reviews_product_id').on(table.product_id),
-    idxUser: index('idx_reviews_user_id').on(table.user_id),
   })
 )

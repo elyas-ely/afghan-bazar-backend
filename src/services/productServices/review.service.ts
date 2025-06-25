@@ -4,7 +4,11 @@ import { reviews } from '../../db/schema/reviews'
 import { users } from '../../db/schema/users'
 import { products } from '../../db/schema/products'
 
-export async function getProductReviews(productId: number) {
+export async function getProductReviews(
+  productId: number,
+  offset: number,
+  pageSize: number
+) {
   const [data, countResult] = await Promise.all([
     db
       .select({
@@ -23,18 +27,20 @@ export async function getProductReviews(productId: number) {
       .where(eq(reviews.product_id, productId))
       .innerJoin(users, eq(reviews.user_id, users.id))
       .orderBy(desc(reviews.created_at))
-      .limit(10)
-      .offset(0),
+      .limit(pageSize)
+      .offset(offset),
 
     db
       .select({ count: sql<number>`COUNT(*)` })
       .from(reviews)
       .where(eq(reviews.product_id, productId)),
   ])
-
+  const total = countResult[0]?.count ?? 0
+  const hasNextPage = offset + pageSize < total
   return {
     data,
-    count: countResult[0]?.count ?? 0,
+    count: total,
+    hasNextPage,
   }
 }
 

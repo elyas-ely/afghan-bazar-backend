@@ -30,59 +30,40 @@ export async function getViewedProducts(userId: string) {
   return viewedProducts
 }
 
+
+
 export async function updateViewedProduct(productId: number, userId: string) {
-  const condition = and(
-    eq(viewed_products.product_id, productId),
-    eq(viewed_products.user_id, userId)
-  )
-
-  const existing = await db
-    .select()
-    .from(viewed_products)
-    .where(condition)
-    .limit(1)
-    .execute()
-
-  if (existing.length > 0) {
-    await db
-      .update(viewed_products)
-      .set({ updated_at: sql`CURRENT_TIMESTAMP` })
-      .where(condition)
-      .execute()
-
-    return { status: 'updated' }
-  }
-
-  // Get all viewed products for the user (sorted by oldest first)
-  const viewed = await db
-    .select()
-    .from(viewed_products)
-    .where(eq(viewed_products.user_id, userId))
-    .orderBy(viewed_products.updated_at)
-    .execute()
-
-  // If the user has 5 already, delete the oldest one
-  if (viewed.length >= 5) {
-    const oldest = viewed[0]
-    await db
-      .delete(viewed_products)
-      .where(
-        and(
-          eq(viewed_products.user_id, userId),
-          eq(viewed_products.product_id, oldest.product_id)
-        )
-      )
-      .execute()
-  }
-
-  // Insert the new viewed product
-  const [inserted] = await db
+  // 1. UPSERT: Insert or update updated_at timestamp if exists
+  await db
     .insert(viewed_products)
     .values({
       product_id: productId,
       user_id: userId,
     })
-    .returning()
+    .onConflictDoUpdate({
+      target: [viewed_products.product_id, viewed_products.user_id],
+      set: {
+        updated_at: sql`CURRENT_TIMESTAMP`,
+      },
+    })
+    .execute();
 
-  return { status: 'inserted', inserted }
+  // 2. Delete viewed products exceeding 5 most recent per user
+  await db
+    .delete(viewed_products)
+    .where(
+      and(
+        eq(viewed_products.user_id, userId),
+        sql`product_id NOT IN (
+          SELECT product_id FROM viewed_products
+          WHERE user_id = ${userId}
+          ORDER BY updated_at DESC
+          LIMIT 5
+        )`
+      )
+    )
+    .execute();
+
+  return { status: 'success' };
 }
+

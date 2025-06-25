@@ -15,6 +15,9 @@ import {
 
 export async function getProductReviewFn(c: Context) {
   const productId = Number(c.req.param('pId'))
+  const page = parseInt(String(c.req.queries('page'))) || 1
+  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
+  const offset = (page - 1) * pageSize
 
   if (!productId) {
     return c.json(
@@ -27,11 +30,16 @@ export async function getProductReviewFn(c: Context) {
   }
 
   try {
-    const { data, count } = await getProductReviews(productId)
+    const { data, count, hasNextPage } = await getProductReviews(
+      productId,
+      offset,
+      pageSize
+    )
     return c.json({
       success: true,
       reviews: data,
       count,
+      hasNextPage,
     })
   } catch (error) {
     console.log(error)

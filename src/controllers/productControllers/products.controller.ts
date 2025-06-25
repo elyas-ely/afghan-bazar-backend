@@ -5,7 +5,6 @@ import {
   getRecommendedProducts,
   getSearchProducts,
   getFilteredProducts,
-  getViewedProducts,
 } from '../../services/productServices/product.service'
 import { ProductFilters } from '../../types/product.types'
 
