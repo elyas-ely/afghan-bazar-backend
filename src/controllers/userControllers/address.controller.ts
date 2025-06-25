@@ -9,6 +9,7 @@ import {
   createUserAddress,
   updateUserAddress,
   deleteUserAddress,
+  setUserDefaultAddress,
 } from '../../services/userServices/address.service'
 
 export async function getUserAddressesFn(c: Context) {
@@ -103,6 +104,32 @@ export async function createUserAddressFn(c: Context) {
   }
 }
 
+export async function setUserDefaultAddressFn(c: Context) {
+  const userId = c.req.param('userId') as string
+  const addressId = Number(c.req.param('addressId'))
+
+  if (!addressId || !userId) {
+    return c.json(
+      {
+        success: 'false',
+        message: 'Address ID or User ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const address = await setUserDefaultAddress(addressId, userId)
+
+    return c.json({
+      success: 'true',
+      address,
+    })
+  } catch (error) {
+    console.log(error)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
+}
 export async function updateUserAddressFn(c: Context) {
   const addressId = Number(c.req.param('addressId'))
   const userId = c.req.param('userId') as string

@@ -1,5 +1,5 @@
 import { db } from '../../config/database'
-import { and, desc, eq } from 'drizzle-orm'
+import { and, desc, eq, sql } from 'drizzle-orm'
 
 import {
   CreateUserAddressInput,
@@ -58,6 +58,19 @@ export async function updateUserAddress(
     .returning()
   return address[0]
 }
+
+export async function setUserDefaultAddress(addressId: number, userId: string) {
+  const updated = await db
+    .update(addresses)
+    .set({
+      is_default: sql`CASE WHEN id = ${addressId} THEN true ELSE false END`,
+    })
+    .where(eq(addresses.user_id, userId))
+    .returning()
+
+  return updated[0]
+}
+
 //
 //
 //
