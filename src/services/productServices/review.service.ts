@@ -7,7 +7,7 @@ import { products } from '../../db/schema/products'
 export async function getProductReviews(
   productId: number,
   offset: number,
-  pageSize: number
+  limit: number
 ) {
   const [data, countResult] = await Promise.all([
     db
@@ -27,7 +27,7 @@ export async function getProductReviews(
       .where(eq(reviews.product_id, productId))
       .innerJoin(users, eq(reviews.user_id, users.id))
       .orderBy(desc(reviews.created_at))
-      .limit(pageSize)
+      .limit(limit)
       .offset(offset),
 
     db
@@ -36,11 +36,43 @@ export async function getProductReviews(
       .where(eq(reviews.product_id, productId)),
   ])
   const total = countResult[0]?.count ?? 0
-  const hasNextPage = offset + pageSize < total
+  const hasNextPage = offset + limit < total
+  return {
+    data,
+    hasNextPage,
+  }
+}
+
+export async function getProductMiniReviews(productId: number, limit: number) {
+  const [data, countResult] = await Promise.all([
+    db
+      .select({
+        id: reviews.id,
+        user_name: users.user_name,
+        country: users.country,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        images: reviews.images,
+        product_id: reviews.product_id,
+        profile: users.profile,
+        updated_at: reviews.updated_at,
+        created_at: reviews.created_at,
+      })
+      .from(reviews)
+      .where(eq(reviews.product_id, productId))
+      .innerJoin(users, eq(reviews.user_id, users.id))
+      .orderBy(desc(reviews.created_at))
+      .limit(limit),
+
+    db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(reviews)
+      .where(eq(reviews.product_id, productId)),
+  ])
+  const total = countResult[0]?.count ?? 0
   return {
     data,
     count: total,
-    hasNextPage,
   }
 }
 

@@ -6,11 +6,13 @@ import {
   updateProductReviewFn,
   deleteProductReviewFn,
   getReviewsCountByRatingFn,
+  getProductMiniReviewsFn,
 } from '../../controllers/productControllers/reviews.controller'
 
 const reviewRouter = new Hono()
 reviewRouter.get('/', getProductReviewFn)
 reviewRouter.get('/count', getReviewsCountByRatingFn)
+reviewRouter.get('/mini', getProductMiniReviewsFn)
 reviewRouter.get('/:rId', getProductReviewByIdFn)
 reviewRouter.post('/', createProductReviewFn)
 reviewRouter.patch('/:rId', updateProductReviewFn)

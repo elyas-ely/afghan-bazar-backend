@@ -7,6 +7,7 @@ import {
 import {
   createReview,
   deleteReview,
+  getProductMiniReviews,
   getProductReviewById,
   getProductReviews,
   getReviewsCountByRating,
@@ -16,8 +17,9 @@ import {
 export async function getProductReviewFn(c: Context) {
   const productId = Number(c.req.param('pId'))
   const page = parseInt(String(c.req.queries('page'))) || 1
-  const pageSize = parseInt(String(c.req.queries('pageSize'))) || 12
-  const offset = (page - 1) * pageSize
+
+  const limit = Number(c.req.query('limit')) || 12
+  const offset = (page - 1) * limit
 
   if (!productId) {
     return c.json(
@@ -30,16 +32,50 @@ export async function getProductReviewFn(c: Context) {
   }
 
   try {
-    const { data, count, hasNextPage } = await getProductReviews(
+    const { data, hasNextPage } = await getProductReviews(
       productId,
       offset,
-      pageSize
+      limit
     )
     return c.json({
       success: true,
       reviews: data,
-      count,
+
       hasNextPage,
+    })
+  } catch (error) {
+    console.log(error)
+    return c.json(
+      {
+        success: false,
+        message: 'Internal Server Error',
+      },
+      500
+    )
+  }
+}
+
+export async function getProductMiniReviewsFn(c: Context) {
+  const productId = Number(c.req.param('pId'))
+  const limit = Number(c.req.query('limit')) || 5
+
+  if (!productId) {
+    return c.json(
+      {
+        success: false,
+        message: 'Product ID is required',
+      },
+      400
+    )
+  }
+
+  try {
+    const { data, count } = await getProductMiniReviews(productId, limit)
+
+    return c.json({
+      success: true,
+      reviews: data,
+      count,
     })
   } catch (error) {
     console.log(error)
