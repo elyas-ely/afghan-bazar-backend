@@ -50,6 +50,7 @@ export async function getProductMiniReviews(productId: number, limit: number) {
       .select({
         id: reviews.id,
         user_name: users.user_name,
+        user_id: users.id,
         country: users.country,
         rating: reviews.rating,
         comment: reviews.comment,
