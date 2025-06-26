@@ -41,6 +41,7 @@ export async function getUserOrders(userId: string) {
 
       // Product info via order_items
       product: {
+        id: products.id,
         name: products.name,
         description: products.description,
         price: products.price,

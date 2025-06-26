@@ -3,8 +3,6 @@
 - 1. orders
 - 2. Banners
 - 3. notifications
-- 4. Default address
+- 4. weight in orders
 
 <!-- -------------- -->
-
-Default address
